@@ -229,17 +229,15 @@ const getContributionHeatmap = async (username) => {
     // GitHub sends errors in body even with 200 status
     if (body.errors && body.errors.length > 0) {
       const msg = body.errors.map(e => e.message).join(', ');
-      console.error('GraphQL errors:', msg);
+      console.error('❌ GitHub GraphQL errors:', msg);
+      if (msg.includes('rate limit')) throw new Error('GitHub API rate limit exceeded. Try again in an hour.');
       throw new Error(msg);
     }
 
-    if (!body.data) {
-      console.error('No data in GraphQL response:', JSON.stringify(body));
-      throw new Error('No data returned from GitHub GraphQL API. Check your token permissions (must be a Classic PAT, not fine-grained).');
-    }
-
-    if (!body.data.user) {
-      throw new Error(`GitHub user "${username}" not found.`);
+    if (!body.data || !body.data.user) {
+      console.error('❌ GitHub GraphQL structure failure:', JSON.stringify(body));
+      if (!body.data?.user && username) throw new Error(`GitHub user "${username}" was not found or is currently unavailable via API.`);
+      throw new Error('Incomplete data returned from GitHub GraphQL API.');
     }
 
     return body.data.user.contributionsCollection.contributionCalendar;

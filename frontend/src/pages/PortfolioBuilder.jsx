@@ -52,10 +52,10 @@ export default function PortfolioBuilder() {
                     transition: 'all 0.2s', textAlign: 'left',
                   }}>
                   <div style={{ width: 36, height: 36, background: template === id ? 'rgba(124,58,237,0.25)' : 'rgba(255,255,255,0.06)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon size={18} color={template === id ? '#a855f7' : '#64748b'} />
+                    <Icon size={18} color={template === id ? 'var(--primary)' : '#64748b'} />
                   </div>
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: '0.875rem', color: template === id ? '#a855f7' : '#f8fafc' }}>{label}</div>
+                    <div style={{ fontWeight: 600, fontSize: '0.875rem', color: template === id ? 'var(--primary)' : '#f8fafc' }}>{label}</div>
                     <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{desc}</div>
                   </div>
                 </button>

@@ -17,7 +17,7 @@ export default function ThemeToggle() {
         alignItems: 'center',
         justifyContent: 'center',
         transition: 'all 0.2s',
-        color: 'var(--text-primary)',
+        color: 'var(--foreground)',
       }}
       onMouseEnter={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
       onMouseLeave={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'}

@@ -15,11 +15,18 @@ const userSchema = new mongoose.Schema({
   careerUrgency: { type: String, enum: ['Exploring', 'Active', 'Urgent'], default: 'Active' },
   xp: { type: Number, default: 0 },
   streak: { type: Number, default: 0 },
+  lastActiveDate: { type: Date, default: null },
   badges: [{ type: String }],
+  milestones: [{
+    id: String,
+    claimed: { type: Boolean, default: false },
+    claimedAt: { type: Date, default: null }
+  }],
   onboardingComplete: { type: Boolean, default: false },
   githubData: { type: Object, default: null },
   lastGithubSync: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now },
+
 });
 
 userSchema.pre('save', async function () {

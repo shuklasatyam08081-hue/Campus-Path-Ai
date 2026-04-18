@@ -15,7 +15,7 @@ const getGenAI = () => {
  */
 const generateRoadmap = async ({ targetRole, githubAnalysis, manualSkills, weeklyHours, proficiency }) => {
   const modelName = 'gemini-2.5-flash';
-  
+
   // 1. Gather all existing knowledge
   const githubSkills = githubAnalysis
     ? [...githubAnalysis.frameworks, ...githubAnalysis.languages.map(l => l.language)]
@@ -72,12 +72,12 @@ Ensure the output is 100% valid JSON and no markdown formatting outside of the b
     console.log(`🤖 Requesting 8-14 Week Granular Roadmap for "${targetRole}"...`);
     const model = getGenAI().getGenerativeModel({
       model: modelName,
-      generationConfig: { 
+      generationConfig: {
         responseMimeType: "application/json",
         temperature: 0.1 // Even lower for maximum consistency
       }
     });
-    
+
     const result = await model.generateContent(prompt);
     const text = result.response.text();
 
@@ -100,7 +100,7 @@ Ensure the output is 100% valid JSON and no markdown formatting outside of the b
     require('fs').writeFileSync('gemini_error.txt', error.stack || error.message);
     console.error('❌ Gemini Error:', error.message);
     console.log('⚠️ Activating High-Quality Role-Based Fallback...');
-    
+
     // Fallback: Generate a logical multi-week structure based on the role itself
     const fallbackTopics = [
       `Foundations of ${targetRole}`,
@@ -112,7 +112,7 @@ Ensure the output is 100% valid JSON and no markdown formatting outside of the b
       `Scalability & System Design`,
       `Industry Projects & Portfolio`
     ];
-    
+
     return generateMockRoadmap(targetRole, fallbackTopics, 8, weeklyHours);
   }
 };

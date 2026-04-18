@@ -3,17 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { roadmapAPI } from '../api/client';
-import { 
-  Globe, Layout, Code, Server, Database, ShieldCheck, Cloud, Award, 
-  Check, ChevronRight, ExternalLink, BookOpen, Play, X, RefreshCw, Map, Brain, Github, Video 
+import {
+  Globe, Layout, Code, Server, Database, ShieldCheck, Cloud, Award,
+  Check, ChevronRight, ExternalLink, BookOpen, Play, X, RefreshCw, Map, Brain, Github, Video
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+import ThreeSkillTree from '../components/ThreeSkillTree';
 
-const STATUS_COLORS = { done: 'var(--accent-primary)', active: 'var(--accent-primary)', upcoming: 'var(--bg-card)' };
-
-// Topic to Icon Mapping
 const getTopicIcon = (topic) => {
-  const t = topic.toLowerCase();
+  const t = topic?.toLowerCase() || '';
   if (t.includes('internet') || t.includes('web')) return <Globe size={24} />;
   if (t.includes('html') || t.includes('css') || t.includes('ui') || t.includes('frontend')) return <Layout size={24} />;
   if (t.includes('javascript') || t.includes('js') || t.includes('react') || t.includes('typescript')) return <Code size={24} />;
@@ -29,42 +29,58 @@ function ZigZagStep({ week, index, status, onSelect, side }) {
   const isDone = status === 'done';
 
   const cardContent = (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, x: side === 'left' ? -30 : 30 }}
       whileInView={{ opacity: 1, x: 0 }}
-      className={`zigzag-card ${side}`}
+      viewport={{ once: true, margin: "-50px" }}
+      className={`glass-panel p-5 cursor-pointer hover:border-primary/50 transition-all hover:scale-[1.02] active:scale-95 ${isActive ? 'ring-2 ring-primary/50 bg-primary/5 shadow-lg shadow-primary/10' :
+        isDone ? 'bg-emerald-500/5 border-emerald-500/20 opacity-80' :
+          'opacity-60 grayscale-[30%]'
+        }`}
       onClick={() => onSelect(week, index)}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-        <span style={{ fontSize: '0.65rem', color: 'var(--accent-primary)', fontWeight: 800, textTransform: 'uppercase' }}>Week {week.weekNumber}</span>
-        {isDone && <Check size={14} color="#10b981" />}
+      <div className="flex justify-between items-center mb-2">
+        <span className={twMerge(
+          "text-[10px] font-black tracking-widest uppercase",
+          isDone ? "text-emerald-500" : isActive ? "text-primary" : "text-muted-foreground"
+        )}>
+          Week {week.weekNumber}
+        </span>
+        {isDone && <Check size={16} className="text-emerald-500" />}
       </div>
-      <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{week.topic}</h4>
-      <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.5rem', lineClamp: 2, display: '-webkit-box', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+      <h4 className="text-sm font-bold text-foreground mb-2 leading-snug line-clamp-2">{week.topic}</h4>
+      <p className="text-xs text-muted-foreground font-medium line-clamp-2 leading-relaxed">
         {week.description}
       </p>
     </motion.div>
   );
 
   return (
-    <div className="zigzag-step">
-      <div className="zigzag-side left">
+    <div className="relative flex justify-center items-center h-[200px] w-full max-w-4xl mx-auto z-10 group">
+
+      {/* Left side content slot */}
+      <div className="absolute left-0 w-[calc(50%-4rem)] md:w-[calc(50%-6rem)] flex justify-end">
         {side === 'left' && cardContent}
       </div>
 
-      <motion.div 
+      {/* Center Node */}
+      <motion.div
         initial={{ scale: 0 }}
         whileInView={{ scale: 1 }}
-        className={`zigzag-node ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}`}
+        viewport={{ once: true }}
         onClick={() => onSelect(week, index)}
-        style={{ cursor: 'pointer' }}
+        className={twMerge(
+          "w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center font-black text-lg md:text-xl relative z-20 cursor-pointer shadow-xl transition-all border-4 bg-card",
+          isDone ? 'border-emerald-500 text-emerald-500 shadow-emerald-500/20' :
+            isActive ? 'border-primary text-primary shadow-primary/40 scale-110' :
+              'border-border text-muted-foreground'
+        )}
       >
-        <div className="zigzag-icon-container" style={{ fontWeight: 900, fontSize: '1.25rem' }}>
-          {index + 1}
-        </div>
+        {isDone ? <Check size={24} strokeWidth={4} /> : index + 1}
       </motion.div>
 
-      <div className="zigzag-side right">
+      {/* Right side content slot */}
+      <div className="absolute right-0 w-[calc(50%-4rem)] md:w-[calc(50%-6rem)] flex justify-start">
         {side === 'right' && cardContent}
       </div>
     </div>
@@ -74,71 +90,69 @@ function ZigZagStep({ week, index, status, onSelect, side }) {
 function ZigZagRoadmap({ weeks, onSelect }) {
   if (!weeks || weeks.length === 0) return null;
 
-  // Path SVG logic (S-Curves) - SYNCED WITH GRID
-  const stepHeight = 200; 
-  const topPadding = 100; 
-  const startY = topPadding + (stepHeight / 2); // Center of the first grid cell
+  const stepHeight = 200;
+  const topPadding = 100;
+  const startY = topPadding + (stepHeight / 2);
   const totalHeight = topPadding + (weeks.length * stepHeight);
 
   return (
-    <div className="zigzag-container">
+    <div className="relative w-full overflow-hidden no-scrollbar" style={{ height: totalHeight }}>
       {/* Background SVG Path */}
-      <svg 
-        className="zigzag-path-svg" 
-        style={{ width: '100%', height: totalHeight, top: 0, left: 0, transform: 'none' }} 
-        viewBox={`0 0 1000 ${totalHeight}`} 
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        viewBox={`0 0 1000 ${totalHeight}`}
         fill="none"
+        preserveAspectRatio="xMidYMin slice"
       >
-        <path 
+        <path
           d={`M 500 ${startY} ${weeks.slice(0, -1).map((_, i) => {
             const nextY = startY + ((i + 1) * stepHeight);
-            const midY = startY + (i * stepHeight) + stepHeight/2;
+            const midY = startY + (i * stepHeight) + stepHeight / 2;
             const xOffset = i % 2 === 0 ? 120 : -120;
             return `Q ${500 + xOffset} ${midY} 500 ${nextY}`;
-          }).join(' ')}`} 
-          stroke="rgba(168, 85, 247, 0.15)" 
-          strokeWidth="8" 
+          }).join(' ')}`}
+          stroke="var(--color-primary)"
+          strokeOpacity="0.15"
+          strokeWidth="8"
           strokeLinecap="round"
         />
-        <path 
+        <path
           d={`M 500 ${startY} ${weeks.slice(0, -1).map((_, i) => {
             const nextY = startY + ((i + 1) * stepHeight);
-            const midY = startY + (i * stepHeight) + stepHeight/2;
+            const midY = startY + (i * stepHeight) + stepHeight / 2;
             const xOffset = i % 2 === 0 ? 120 : -120;
             return `Q ${500 + xOffset} ${midY} 500 ${nextY}`;
-          }).join(' ')}`} 
-          stroke="url(#pathGradient)" 
-          strokeWidth="4"
+          }).join(' ')}`}
+          stroke="var(--color-primary)"
+          strokeOpacity="0.5"
+          strokeWidth="3"
+          strokeDasharray="6 6"
           strokeLinecap="round"
         />
-        <defs>
-          <linearGradient id="pathGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--accent-primary)" />
-            <stop offset="50%" stopColor="var(--accent-secondary)" />
-            <stop offset="100%" stopColor="var(--accent-primary)" />
-          </linearGradient>
-        </defs>
       </svg>
 
-      {weeks.map((week, index) => {
-        const completedTasks = (week.tasks || []).filter(t => t.completed).length;
-        const progress = week.tasks?.length > 0 ? (completedTasks / week.tasks.length) * 100 : 0;
-        const status = progress === 100 ? 'done' : index === 0 || (weeks[index-1] && (weeks[index-1].tasks || []).filter(t=>t.completed).length > 0) ? 'active' : 'upcoming';
+      <div className="relative w-full pt-[100px]">
+        {weeks.map((week, index) => {
+          const completedTasks = (week.tasks || []).filter(t => t.completed).length;
+          const progress = week.tasks?.length > 0 ? (completedTasks / week.tasks.length) * 100 : 0;
+          const status = progress === 100 ? 'done' : index === 0 || (weeks[index - 1] && (weeks[index - 1].tasks || []).filter(t => t.completed).length > 0) ? 'active' : 'upcoming';
 
-        return (
-          <ZigZagStep 
-            key={index}
-            week={week}
-            index={index}
-            status={status}
-            onSelect={onSelect}
-            side={index % 2 === 0 ? 'left' : 'right'}
-          />
-        );
-      })}
+          return (
+            <ZigZagStep
+              key={index}
+              week={week}
+              index={index}
+              status={status}
+              onSelect={onSelect}
+              side={index % 2 === 0 ? 'left' : 'right'}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }
+
 export default function RoadmapViewer() {
   const { user } = useAuth();
   const toast = useToast();
@@ -150,6 +164,7 @@ export default function RoadmapViewer() {
   const [generating, setGenerating] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [selectedDay, setSelectedDay] = useState(null);
+  const [viewMode, setViewMode] = useState('list'); // 'list' or '3d'
 
   const fetchRoadmap = useCallback(async () => {
     setLoading(true);
@@ -173,10 +188,6 @@ export default function RoadmapViewer() {
     fetchRoadmap();
   }, [fetchRoadmap]);
 
-  useEffect(() => {
-    // Note: buildGraph removed in favor of SnakeRoadmap component
-  }, [weeks]);
-
   const generateRoadmap = async () => {
     if (!user?.targetRole) { toast.error('Please complete onboarding first.'); navigate('/onboarding'); return; }
     setGenerating(true);
@@ -192,20 +203,22 @@ export default function RoadmapViewer() {
     }
   };
 
-  if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}><RefreshCw className="spin" /></div>;
+  if (loading) return <div className="flex items-center justify-center min-h-[60vh]"><RefreshCw className="animate-spin text-primary" size={32} /></div>;
 
   if (weeks.length === 0) {
     return (
-      <div style={{ height: 'calc(100vh - 8rem)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', textAlign: 'center' }}>
-        <div style={{ width: 64, height: 64, background: 'var(--bg-glass)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Map size={32} color="var(--accent-primary)" />
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center max-w-lg mx-auto">
+        <div className="w-20 h-20 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6">
+          <Map size={40} className="text-primary" />
         </div>
-        <div>
-          <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>No Roadmap Yet</h2>
-          <p style={{ color: 'var(--text-secondary)', maxWidth: '400px' }}>Your personalized career path hasn't been mapped. Generate one now using AI.</p>
-        </div>
-        <button className="btn-primary" onClick={generateRoadmap} disabled={generating}>
-          {generating ? <><RefreshCw size={18} className="spin" /> Generating...</> : <><Brain size={18} /> Generate AI Roadmap</>}
+        <h2 className="text-2xl font-bold text-foreground mb-3 font-sans tracking-tight">No Roadmap Yet</h2>
+        <p className="text-muted-foreground font-medium mb-8">Your personalized career path hasn't been mapped. Generate one now using AI.</p>
+        <button
+          className="px-6 py-3 bg-primary text-primary-foreground font-bold rounded-xl shadow-lg hover:scale-105 transition-transform flex items-center gap-2 disabled:opacity-70 disabled:hover:scale-100"
+          onClick={generateRoadmap}
+          disabled={generating}
+        >
+          {generating ? <><RefreshCw size={18} className="animate-spin" /> Generating...</> : <><Brain size={18} /> Generate AI Roadmap</>}
         </button>
       </div>
     );
@@ -236,7 +249,7 @@ export default function RoadmapViewer() {
       const res = await roadmapAPI.verifyMilestone(roadmap._id, weekNumber);
       if (res.data.verified) {
         toast.success(res.data.message || 'Milestone verified successfully!');
-        fetchRoadmap(); // Refresh everything
+        fetchRoadmap();
       } else {
         toast.info(res.data.message || 'Repository not found yet. Make sure the name matches perfectly.');
       }
@@ -248,205 +261,285 @@ export default function RoadmapViewer() {
   };
 
   return (
-    <div style={{ height: 'calc(100vh - 4rem)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div className="h-[calc(100vh-6rem)] flex flex-col gap-4">
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+      <div className="flex justify-between items-end flex-wrap gap-4 shrink-0">
         <div>
-          <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 'clamp(1.5rem, 4vw, 1.75rem)', fontWeight: 700, color: 'var(--text-primary)' }}>Learning Roadmap</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+          <h1 className="text-3xl font-extrabold font-sans text-foreground mb-1">Learning Roadmap</h1>
+          <p className="text-primary text-sm font-medium">
             {user?.targetRole || 'Fullstack'} Engineer track · {weeks.length} weeks
           </p>
         </div>
-        <div className="hide-mobile" style={{ gap: '0.75rem', alignItems: 'center' }}>
-          {[{ color: '#10b981', label: 'Completed' }, { color: 'var(--accent-primary)', label: 'In Progress' }, { color: 'var(--text-muted)', label: 'Upcoming' }].map(({ color, label }) => (
-            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-              <div style={{ width: 10, height: 10, borderRadius: '50%', background: color }} />
-              {label}
+          {/* Legend & View Toggles */}
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:flex gap-4 items-center">
+              {[
+                { color: 'bg-emerald-500', label: 'Completed' },
+                { color: 'bg-primary', label: 'In Progress' },
+                { color: 'bg-muted-foreground', label: 'Upcoming' }
+              ].map(({ color, label }) => (
+                <div key={label} className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  <div className={`w-2.5 h-2.5 rounded-full ${color}`} />
+                  {label}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+            
+            <div className="flex bg-muted border border-border rounded-xl p-1 shadow-inner h-fit">
+               <button 
+                 onClick={() => setViewMode('list')}
+                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'list' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+               >
+                 <Layout size={14} /> List
+               </button>
+               <button 
+                 onClick={() => setViewMode('3d')}
+                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === '3d' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+               >
+                 <RefreshCw size={14} /> 3D DNA
+               </button>
+            </div>
+          </div>
       </div>
 
-      <div style={{ flex: 1, borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border-subtle)', position: 'relative', background: 'var(--bg-secondary)' }}>
-          <div style={{ position: 'absolute', top: 20, left: 20, zIndex: 10, pointerEvents: 'none' }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--accent-primary)', margin: 0, opacity: 0.3 }}>SKILL TRIP</h3>
-          </div>
-          
-          <div style={{ height: '100%', overflowY: 'auto' }} className="custom-scrollbar">
-            <ZigZagRoadmap weeks={weeks} onSelect={(w) => setSelected(w)} />
-          </div>
+      <div className="flex-1 relative rounded-3xl border border-border bg-card/40 backdrop-blur-md overflow-hidden shadow-inner flex">
 
-        {/* Detail Drawer */}
-        {selected && (
-          <div className="roadmap-detail-drawer custom-scrollbar">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
-              <div>
-                <span style={{ fontSize: '0.65rem', color: 'var(--accent-primary)', fontWeight: 700 }}>WEEK {selected.weekNumber}</span>
-                <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', margin: '0.25rem 0' }}>{selected.topic}</h2>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>{selected.estimatedHours}h estimated</p>
-              </div>
-              <button onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4 }}>
-                <X size={18} />
-              </button>
-            </div>
-
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', lineHeight: 1.7, marginBottom: '1.5rem' }}>{selected.description}</p>
-
-            {/* Skills */}
-            <div style={{ marginBottom: '1.5rem' }}>
-              <h4 style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.75rem', letterSpacing: '0.08em' }}>SKILLS COVERED</h4>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                {(selected.skills || []).map(s => (
-                  <span key={s} className="badge badge-purple" style={{ fontSize: '0.7rem' }}>{s}</span>
-                ))}
-              </div>
-            </div>
-
-            {/* GitHub Challenge */}
-            {selected.expectedRepoName && (
-              <div style={{ marginBottom: '2rem', padding: '1rem', borderRadius: '12px', background: 'rgba(56, 189, 248, 0.05)', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                  <Github size={18} color="var(--accent-secondary)" />
-                  <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-secondary)' }}>GITHUB PROJECT CHALLENGE</h4>
-                </div>
-                <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '1rem' }}>
-                  To complete this week, create a public GitHub repository named exactly:
-                </p>
-                <div style={{ background: 'var(--bg-card)', padding: '0.75rem', borderRadius: '6px', border: '1px solid var(--border-subtle)', marginBottom: '1rem', fontFamily: 'monospace', color: 'var(--text-primary)', fontSize: '0.85rem' }}>
-                  {selected.expectedRepoName}
-                </div>
-                {selected.isRepoVerified ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#10b981', fontSize: '0.825rem', fontWeight: 600 }}>
-                    <Check size={16} /> Verified & Completed
-                  </div>
-                ) : (
-                  <button 
-                    onClick={() => handleVerify(selected.weekNumber)} 
-                    disabled={verifying}
-                    className="btn-cyan" 
-                    style={{ width: '100%', justifyContent: 'center' }}
-                  >
-                    {verifying ? 'Checking GitHub...' : 'Verify Repository'}
-                  </button>
-                )}
-              </div>
-            )}
-
-            {/* Day by Day Plan (If available) */}
-            {selected.days && selected.days.length > 0 ? (
-              <div style={{ marginBottom: '1.5rem' }}>
-                <h4 style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '1rem', letterSpacing: '0.08em' }}>7-DAY LEARNING PLAN</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  {selected.days.map((day, di) => (
-                    <div 
-                      key={di}
-                      onClick={() => setSelectedDay(day)}
-                      style={{
-                        padding: '1rem', borderRadius: '10px', cursor: 'pointer',
-                        background: 'var(--bg-glass)',
-                        transition: 'all 0.2s', display: 'flex', gap: '1rem'
-                      }}
-                    >
-                      <div style={{ color: 'var(--accent-primary)', fontWeight: 800, fontSize: '0.75rem', width: '3.5rem' }}>DAY {day.dayNumber}</div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: 600, marginBottom: '0.2rem' }}>{day.topic}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{day.subtopic}</div>
-                      </div>
-                      <ChevronRight size={16} color="var(--text-muted)" style={{ alignSelf: 'center' }} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              // Legacy Tasks fallback for old roadmaps
-              <div style={{ marginBottom: '1.5rem' }}>
-                <h4 style={{ fontSize: '0.7rem', fontWeight: 700, color: '#475569', marginBottom: '0.75rem', letterSpacing: '0.08em' }}>TASKS</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  {(selected.tasks || []).map((task, ti) => {
-                    const weekIndex = weeks.findIndex(w => w.weekNumber === selected.weekNumber);
-                    return (
-                      <div
-                        key={ti}
-                        onClick={() => toggleTask(weekIndex, ti)}
-                        style={{
-                          display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
-                          padding: '0.75rem', borderRadius: '8px', cursor: 'pointer',
-                          background: task.completed ? 'rgba(16,185,129,0.08)' : 'var(--bg-glass)',
-                          transition: 'all 0.2s',
-                        }}
-                      >
-                        <div style={{
-                          width: 18, height: 18, borderRadius: '50%', flexShrink: 0, marginTop: 1,
-                          background: task.completed ? '#10b981' : 'var(--border-subtle)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        }}>
-                          {task.completed && <Check size={10} color="white" />}
-                        </div>
-                        <span style={{ fontSize: '0.825rem', color: task.completed ? 'var(--text-muted)' : 'var(--text-secondary)', textDecoration: task.completed ? 'line-through' : 'none', lineHeight: 1.5 }}>{task.text}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-          </div>
-        )}
-
-        {/* Learning Center Modal (For Day specifics) */}
-        {selectedDay && (
-          <div className="learning-modal-overlay">
-            <div className="learning-modal-content glass-card">
-              <button 
-                onClick={() => setSelectedDay(null)} 
-                style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'var(--bg-glass)', border: 'none', color: 'var(--text-primary)', width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+        {/* Main Content Area */}
+        <div className="flex-1 h-full relative">
+          <AnimatePresence mode="wait">
+            {viewMode === '3d' ? (
+              <motion.div 
+                key="3d" 
+                initial={{ opacity: 0, scale: 0.9 }} 
+                animate={{ opacity: 1, scale: 1 }} 
+                exit={{ opacity: 0, scale: 1.1 }}
+                className="absolute inset-0 z-0"
               >
-                <X size={18} />
-              </button>
-              
-              <div style={{ color: 'var(--accent-primary)', fontWeight: 800, fontSize: '0.8rem', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>DAY {selectedDay.dayNumber}</div>
-              <h2 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{selectedDay.topic}</h2>
-              <h3 style={{ fontSize: '1.1rem', color: 'var(--accent-primary)', opacity: 0.8, marginBottom: '1.5rem' }}>{selectedDay.subtopic}</h3>
-              
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '2rem' }}>
-                {selectedDay.description}
-              </p>
+                <ThreeSkillTree 
+                  roadmap={{ weeks }} 
+                  activeWeek={weeks.findIndex(w => w.weekNumber === selected?.weekNumber)} 
+                  onSelectWeek={(idx) => {
+                    setSelected(weeks[idx]);
+                    setViewMode('list');
+                  }} 
+                />
+              </motion.div>
+            ) : (
+              <motion.div 
+                key="list" 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                exit={{ opacity: 0 }}
+                className="h-full overflow-y-auto no-scrollbar relative"
+              >
+                <div className="absolute top-8 left-8 z-10 pointer-events-none">
+                  <h3 className="text-5xl font-black text-primary/5 tracking-tighter">SKILL PATH</h3>
+                </div>
+                <ZigZagRoadmap weeks={weeks} onSelect={(w) => setSelected(w)} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                {/* Embedded Video */}
-                {selectedDay.videoLink ? (
+        {/* Detail Sidebar / Drawer */}
+        <AnimatePresence>
+          {selected && (
+            <motion.div
+              initial={{ x: '100%', opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: '100%', opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="absolute md:static top-0 right-0 w-full md:w-[400px] h-full bg-background/95 md:bg-card border-l border-border shadow-2xl overflow-y-auto no-scrollbar z-50 flex flex-col"
+            >
+              <div className="p-6 sticky top-0 bg-background/95 md:bg-card z-10 border-b border-border/50 backdrop-blur-md flex justify-between items-start">
+                <div>
+                  <span className="text-[10px] uppercase font-black tracking-widest text-primary mb-1 block">Week {selected.weekNumber}</span>
+                  <h2 className="text-lg font-bold text-foreground leading-tight">{selected.topic}</h2>
+                  <p className="text-xs text-muted-foreground font-medium mt-1">{selected.estimatedHours}h estimated</p>
+                </div>
+                <button
+                  onClick={() => setSelected(null)}
+                  className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-foreground hover:text-background transition-colors"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-8 flex-1">
+                <p className="text-sm text-foreground/80 font-medium leading-relaxed">{selected.description}</p>
+
+                {/* Skills */}
+                <div>
+                  <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3">Skills Covered</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {(selected.skills || []).map(s => (
+                      <span key={s} className="px-2 py-1 rounded bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* GitHub Challenge */}
+                {selected.expectedRepoName && (
+                  <div className="p-5 rounded-2xl bg-primary/5 border border-primary/20 shadow-inner">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Github size={18} className="text-primary" />
+                      <h4 className="text-xs font-black text-primary uppercase tracking-widest">Project Challenge</h4>
+                    </div>
+                    <p className="text-xs text-primary/80 font-medium leading-relaxed mb-4">
+                      Create a public GitHub repository named exactly:
+                    </p>
+                    <div className="bg-background border border-border p-3 rounded-xl font-mono text-xs text-foreground font-bold shadow-sm mb-4 break-all">
+                      {selected.expectedRepoName}
+                    </div>
+                    {selected.isRepoVerified ? (
+                      <div className="flex items-center justify-center gap-2 text-xs font-bold text-emerald-500 bg-emerald-500/10 py-2.5 rounded-xl border border-emerald-500/20">
+                        <Check size={16} /> Verified & Completed
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleVerify(selected.weekNumber)}
+                        disabled={verifying}
+                        className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-95 disabled:opacity-70 disabled:pointer-events-none"
+                      >
+                        {verifying ? <RefreshCw size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
+                        {verifying ? 'Checking GitHub...' : 'Verify Repository'}
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Tasks / Days */}
+                {selected.days && selected.days.length > 0 ? (
                   <div>
-                    <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: 'var(--text-primary)', marginBottom: '1rem' }}><Video size={16} color="#ef4444" /> VIDEO LESSON</h4>
-                    <div style={{ width: '100%', aspectRatio: '16/9', background: '#000', borderRadius: '12px', overflow: 'hidden' }}>
-                      <iframe 
-                        width="100%" height="100%" 
-                        src={selectedDay.videoLink.includes('watch?v=') ? selectedDay.videoLink.replace('watch?v=', 'embed/') : selectedDay.videoLink} 
-                        title="YouTube video player" style={{ border: 'none' }} 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                        allowFullScreen
-                      ></iframe>
+                    <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3">7-Day Learning Plan</h4>
+                    <div className="space-y-2">
+                      {selected.days.map((day, di) => (
+                        <div
+                          key={di}
+                          onClick={() => setSelectedDay(day)}
+                          className="flex items-center gap-4 p-4 rounded-xl bg-background border border-border hover:border-primary/50 cursor-pointer group shadow-sm transition-all"
+                        >
+                          <div className="text-xs font-black text-primary uppercase shrink-0 w-12">Day {day.dayNumber}</div>
+                          <div className="flex-1 truncate">
+                            <div className="text-sm font-bold text-foreground truncate">{day.topic}</div>
+                            <div className="text-xs text-muted-foreground truncate font-medium">{day.subtopic}</div>
+                          </div>
+                          <ChevronRight size={16} className="text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                        </div>
+                      ))}
                     </div>
                   </div>
                 ) : (
-                  <div style={{ padding: '1rem', background: 'var(--bg-glass)', borderRadius: '8px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>No video available for this topic.</div>
-                )}
-
-                {/* Documentation Link */}
-                {selectedDay.docLink && (
                   <div>
-                    <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: 'var(--text-primary)', marginBottom: '1rem' }}><BookOpen size={16} color="var(--accent-secondary)" /> OFFICIAL DOCUMENTATION</h4>
-                    <a href={selectedDay.docLink} target="_blank" rel="noreferrer" className="btn-secondary" style={{ width: '100%', justifyContent: 'space-between' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <BookOpen size={18} /> Read the Official Guide
-                      </div>
-                      <ExternalLink size={16} />
-                    </a>
+                    <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3">Checklist</h4>
+                    <div className="space-y-2">
+                      {(selected.tasks || []).map((task, ti) => {
+                        const weekIndex = weeks.findIndex(w => w.weekNumber === selected.weekNumber);
+                        return (
+                          <div
+                            key={ti}
+                            onClick={() => toggleTask(weekIndex, ti)}
+                            className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${task.completed ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-background hover:bg-muted border-border hover:border-border/80 shadow-sm'
+                              }`}
+                          >
+                            <div className={`w-5 h-5 mt-0.5 rounded-full border-2 flex items-center justify-center shrink-0 ${task.completed ? 'bg-emerald-500 border-emerald-500' : 'border-muted-foreground/30'
+                              }`}>
+                              {task.completed && <Check size={12} className="text-white" strokeWidth={3} />}
+                            </div>
+                            <span className={`text-sm font-medium leading-snug ${task.completed ? 'text-muted-foreground line-through' : 'text-foreground/90'
+                              }`}>
+                              {task.text}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </div>
-            </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Single Day Modal */}
+        <AnimatePresence>
+          {selectedDay && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-[100] bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 lg:p-12"
+            >
+              <motion.div
+                initial={{ scale: 0.95, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.95, y: 20 }}
+                className="w-full max-w-4xl max-h-full flex flex-col bg-card border border-border shadow-2xl rounded-3xl overflow-hidden relative"
+              >
+                <div className="p-6 md:p-8 flex-1 overflow-y-auto no-scrollbar">
+                  <button
+                    onClick={() => setSelectedDay(null)}
+                    className="absolute top-6 right-6 w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center hover:bg-foreground hover:text-background transition-colors z-10 shadow-sm"
+                  >
+                    <X size={20} />
+                  </button>
+
+                  <div className="text-xs font-black tracking-widest text-primary uppercase mb-2">Day {selectedDay.dayNumber}</div>
+                  <h2 className="text-3xl font-extrabold text-foreground mb-1 tracking-tight pr-12">{selectedDay.topic}</h2>
+                  <h3 className="text-lg font-bold text-muted-foreground mb-8 pr-12">{selectedDay.subtopic}</h3>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
+                    <div className="space-y-6 text-foreground/80 font-medium leading-relaxed">
+                      <p>{selectedDay.description}</p>
+                    </div>
+
+                    <div className="space-y-6">
+                      {selectedDay.videoLink ? (
+                        <div className="p-4 rounded-2xl bg-black border border-border shadow-inner">
+                          <h4 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-3"><Video size={14} /> Video Lesson</h4>
+                          <div className="w-full aspect-video rounded-xl overflow-hidden bg-black/50 border border-white/10">
+                            <iframe
+                              width="100%" height="100%"
+                              src={selectedDay.videoLink.includes('watch?v=') ? selectedDay.videoLink.replace('watch?v=', 'embed/') : selectedDay.videoLink}
+                              title="YouTube Lesson"
+                              className="border-none"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-4 rounded-2xl bg-muted/30 border border-border text-xs font-medium text-muted-foreground text-center">
+                          No video available for this topic.
+                        </div>
+                      )}
+
+                      {selectedDay.docLink && (
+                        <a
+                          href={selectedDay.docLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center justify-between p-4 rounded-2xl bg-primary/5 hover:bg-primary/10 border border-primary/20 text-primary hover:text-primary/90 transition-colors group shadow-inner"
+                        >
+                          <div className="flex items-center gap-3">
+                            <BookOpen size={18} />
+                            <div>
+                              <div className="text-xs font-black uppercase tracking-widest leading-none mb-1">Official Guide</div>
+                              <div className="text-sm font-bold">Read Docs</div>
+                            </div>
+                          </div>
+                          <ExternalLink size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

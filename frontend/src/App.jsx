@@ -25,15 +25,16 @@ import Portfolio from './pages/Portfolio';
 import PortfolioBuilder from './pages/PortfolioBuilder';
 import Achievements from './pages/Achievements';
 import Community from './pages/Community';
+import FocusRooms from './pages/FocusRooms';
 import SettingsPage from './pages/Settings';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: 'var(--bg-primary)' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: 'var(--background)' }}>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ width: 48, height: 48, border: '3px solid var(--border-subtle)', borderTop: '3px solid var(--accent-primary)', borderRadius: '50%', margin: '0 auto 1rem', animation: 'spin 1s linear infinite' }} />
-        <p style={{ color: 'var(--text-secondary)' }}>Loading...</p>
+        <div style={{ width: 48, height: 48, border: '3px solid var(--border)', borderTop: '3px solid var(--primary)', borderRadius: '50%', margin: '0 auto 1rem', animation: 'spin 1s linear infinite' }} />
+        <p style={{ color: 'var(--primary)' }}>Loading...</p>
       </div>
     </div>
   );
@@ -68,6 +69,7 @@ export default function App() {
               <Route path="/portfolio-builder" element={<ProtectedRoute><PortfolioBuilder /></ProtectedRoute>} />
               <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
               <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
+              <Route path="/focus" element={<ProtectedRoute><FocusRooms /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
 
               <Route path="*" element={<Navigate to="/" replace />} />

@@ -4,7 +4,7 @@ import { useToast } from '../contexts/ToastContext';
 import { roadmapAPI } from '../api/client';
 import { Zap, Flame, Shield, Star, Award, Lock, ExternalLink, Download, RefreshCw, Brain } from 'lucide-react';
 
-const PIE_COLORS = ['#06b6d4', '#10b981', '#ec4899', '#f97316', '#a855f7', '#3b82f6'];
+const PIE_COLORS = ['#06b6d4', '#10b981', '#ec4899', '#f97316', 'var(--primary)', '#3b82f6'];
 
 export default function Achievements() {
   const { user } = useAuth();
@@ -28,7 +28,7 @@ export default function Achievements() {
           { id: 'global_1', name: 'Early Adopter', desc: 'Joined CampusPath AI in the first cohort.', icon: Zap, color: '#f59e0b', unlocked: true, date: user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : '2024-03-01', xp: 200 },
           { id: 'global_2', name: '7-Day Streak', desc: 'Maintained 7 consecutive days of learning.', icon: Flame, color: '#ef4444', unlocked: (user?.streak || 0) >= 7, date: null, xp: 350 },
           { id: 'global_3', name: 'First Roadmap', desc: 'Generated your first AI-powered roadmap.', icon: Star, color: '#7c3aed', unlocked: hasRoadmap, date: hasRoadmap && data.roadmaps[0].createdAt ? new Date(data.roadmaps[0].createdAt).toLocaleDateString() : null, xp: 150 },
-          { id: 'global_4', name: 'Job Getter', desc: 'Received and accepted a job offer.', icon: Award, color: '#a855f7', unlocked: false, xp: 2000 },
+          { id: 'global_4', name: 'Job Getter', desc: 'Received and accepted a job offer.', icon: Award, color: 'var(--primary)', unlocked: false, xp: 2000 },
         ];
 
         // 2. Synthesize Contextual Badges based on Roadmap Modules
@@ -79,7 +79,7 @@ export default function Achievements() {
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
-      <RefreshCw size={40} className="spin" color="var(--accent-primary)" />
+      <RefreshCw size={40} className="spin" color="var(--primary)" />
     </div>
   );
 
@@ -87,8 +87,8 @@ export default function Achievements() {
     <div style={{ paddingBottom: '3rem', animation: 'fadeIn 0.3s ease-out' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>Achievement Vault</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Earn dynamic badges, collect XP, and prove your algorithmic expertise</p>
+          <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.75rem', fontWeight: 700, color: 'var(--foreground)' }}>Achievement Vault</h1>
+          <p style={{ color: 'var(--primary)', fontSize: '0.875rem' }}>Earn dynamic badges, collect XP, and prove your algorithmic expertise</p>
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
           <div className="badge badge-purple" style={{ fontSize: '0.8rem', padding: '0.4rem 0.875rem' }}>
@@ -102,9 +102,9 @@ export default function Achievements() {
 
       {(!activeRoadmap) && (
         <div style={{ textAlign: 'center', padding: '2rem 1rem', background: 'var(--bg-glass)', borderRadius: '16px', marginBottom: '2rem' }}>
-          <Brain size={32} color="var(--accent-primary)" style={{ marginBottom: '1rem' }} />
-          <h3 style={{ color: 'var(--text-primary)', fontSize: '1.1rem', marginBottom: '0.5rem' }}>No Modules Detected</h3>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Generate an AI roadmap to dynamically construct module mastery badges!</p>
+          <Brain size={32} color="var(--primary)" style={{ marginBottom: '1rem' }} />
+          <h3 style={{ color: 'var(--foreground)', fontSize: '1.1rem', marginBottom: '0.5rem' }}>No Modules Detected</h3>
+          <p style={{ color: 'var(--primary)', fontSize: '0.8rem' }}>Generate an AI roadmap to dynamically construct module mastery badges!</p>
         </div>
       )}
 
@@ -146,16 +146,16 @@ export default function Achievements() {
                 <div style={{
                   width: 56, height: 56, borderRadius: '50%', margin: '0 auto 1rem',
                   background: badge.unlocked ? `${badge.color}25` : 'var(--bg-glass)',
-                  border: badge.unlocked ? `2px solid ${badge.color}60` : '2px solid var(--border-subtle)',
+                  border: badge.unlocked ? `2px solid ${badge.color}60` : '2px solid var(--border)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   boxShadow: badge.unlocked ? `0 0 20px ${badge.color}40` : 'none',
                 }}>
-                  {badge.unlocked ? <Icon size={24} color={badge.color} /> : <Lock size={20} color="var(--text-muted)" />}
+                  {badge.unlocked ? <Icon size={24} color={badge.color} /> : <Lock size={20} color="var(--muted-foreground)" />}
                 </div>
-                <div style={{ fontWeight: 700, fontSize: '0.9rem', color: badge.unlocked ? 'var(--text-primary)' : 'var(--text-muted)', marginBottom: '0.35rem' }}>{badge.name}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '0.75rem' }}>{badge.desc}</div>
-                <div style={{ fontSize: '0.75rem', color: badge.unlocked ? badge.color : 'var(--text-muted)', fontWeight: 700 }}>+{badge.xp} XP</div>
-                {badge.date && badge.unlocked && <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Unlocked: {badge.date}</div>}
+                <div style={{ fontWeight: 700, fontSize: '0.9rem', color: badge.unlocked ? 'var(--foreground)' : 'var(--muted-foreground)', marginBottom: '0.35rem' }}>{badge.name}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--primary)', lineHeight: 1.5, marginBottom: '0.75rem' }}>{badge.desc}</div>
+                <div style={{ fontSize: '0.75rem', color: badge.unlocked ? badge.color : 'var(--muted-foreground)', fontWeight: 700 }}>+{badge.xp} XP</div>
+                {badge.date && badge.unlocked && <div style={{ fontSize: '0.65rem', color: 'var(--muted-foreground)', marginTop: '0.25rem' }}>Unlocked: {badge.date}</div>}
               </div>
             </div>
           );
@@ -170,8 +170,8 @@ export default function Achievements() {
               <selectedBadge.icon size={28} color={selectedBadge.color} />
             </div>
             <div style={{ flex: 1 }}>
-              <h3 style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '1.1rem', marginBottom: '0.25rem' }}>{selectedBadge.name}</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{selectedBadge.desc}</p>
+              <h3 style={{ fontWeight: 700, color: 'var(--foreground)', fontSize: '1.1rem', marginBottom: '0.25rem' }}>{selectedBadge.name}</h3>
+              <p style={{ color: 'var(--primary)', fontSize: '0.85rem' }}>{selectedBadge.desc}</p>
             </div>
             <div style={{ display: 'flex', gap: '0.75rem', flexShrink: 0, flexWrap: 'wrap' }}>
               <button className="btn-secondary" onClick={() => { setShowPost(true); toast.success('Social post template generated!'); }}
@@ -187,9 +187,9 @@ export default function Achievements() {
 
           {/* AI ExternalLink Post Preview */}
           {showPost && (
-            <div style={{ marginTop: '1.25rem', padding: '1rem', borderRadius: '10px', background: 'var(--bg-glass)', border: '1px solid var(--border-subtle)', animation: 'fadeIn 0.4s ease-out' }}>
-              <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.5rem', letterSpacing: '0.08em' }}>AI-GENERATED SHARE POST</div>
-              <pre style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', lineHeight: 1.7, whiteSpace: 'pre-wrap', fontFamily: 'inherit', margin: 0 }}>
+            <div style={{ marginTop: '1.25rem', padding: '1rem', borderRadius: '10px', background: 'var(--bg-glass)', border: '1px solid var(--border)', animation: 'fadeIn 0.4s ease-out' }}>
+              <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--muted-foreground)', marginBottom: '0.5rem', letterSpacing: '0.08em' }}>AI-GENERATED SHARE POST</div>
+              <pre style={{ color: 'var(--primary)', fontSize: '0.8rem', lineHeight: 1.7, whiteSpace: 'pre-wrap', fontFamily: 'inherit', margin: 0 }}>
                 {generateSocialPost(selectedBadge)}
               </pre>
               <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '0.75rem' }}>

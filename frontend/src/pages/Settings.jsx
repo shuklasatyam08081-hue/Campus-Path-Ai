@@ -102,7 +102,7 @@ export default function SettingsPage() {
             padding: '0.5rem 1rem', borderRadius: '10px', fontSize: '0.875rem', fontWeight: 600,
             background: tab === id ? 'rgba(124,58,237,0.25)' : 'transparent',
             border: tab === id ? '1px solid rgba(124,58,237,0.3)' : '1px solid transparent',
-            color: tab === id ? '#a855f7' : '#64748b', cursor: 'pointer', transition: 'all 0.2s',
+            color: tab === id ? 'var(--primary)' : '#64748b', cursor: 'pointer', transition: 'all 0.2s',
           }}>
             <TabIcon size={15} />{label}
           </button>
@@ -146,7 +146,7 @@ export default function SettingsPage() {
             <div style={{ maxHeight: '350px', overflowY: 'auto', paddingRight: '0.5rem', borderRadius: '12px' }} className="custom-scrollbar">
               {/* Roles Section */}
               <div style={{ marginBottom: '1.5rem' }}>
-                <p style={{ fontSize: '0.65rem', fontWeight: 700, color: '#a855f7', textTransform: 'uppercase', marginBottom: '0.75rem', letterSpacing: '0.05em' }}>Roles</p>
+                <p style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--primary)', textTransform: 'uppercase', marginBottom: '0.75rem', letterSpacing: '0.05em' }}>Roles</p>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.5rem' }}>
                   {ROADMAP_OPTIONS.roles.filter(r => r.toLowerCase().includes(searchTerm.toLowerCase())).map(role => (
                     <button key={role} onClick={() => { setProfile(p => ({ ...p, targetRole: role })); setShowCustomInput(false); }}
@@ -157,7 +157,7 @@ export default function SettingsPage() {
                         cursor: 'pointer', textAlign: 'left', fontSize: '0.8rem', transition: 'all 0.15s', position: 'relative'
                       }}>
                       {role}
-                      {profile.targetRole === role && <Check size={10} style={{ position: 'absolute', right: 6, top: 6, color: '#a855f7' }} />}
+                      {profile.targetRole === role && <Check size={10} style={{ position: 'absolute', right: 6, top: 6, color: 'var(--primary)' }} />}
                     </button>
                   ))}
                 </div>
@@ -275,7 +275,7 @@ export default function SettingsPage() {
               </div>
               <button onClick={() => setNotifs(p => ({ ...p, [key]: !p[key] }))} style={{
                 width: 44, height: 24, borderRadius: '100px', border: 'none', cursor: 'pointer',
-                background: notifs[key] ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'rgba(255,255,255,0.1)',
+                background: notifs[key] ? 'linear-gradient(135deg, #7c3aed, var(--primary))' : 'rgba(255,255,255,0.1)',
                 position: 'relative', flexShrink: 0, transition: 'background 0.3s',
               }}>
                 <div style={{

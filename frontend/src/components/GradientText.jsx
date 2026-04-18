@@ -3,7 +3,7 @@ import React from 'react';
 export default function GradientText({
   children,
   className = "",
-  colors = ["#40ffaa", "#4079ff", "#40ffaa", "#4079ff", "#40ffaa"],
+  colors = ["#10b981", "#34d399", "#059669", "#6ee7b7", "#10b981"],
   animationSpeed = 8,
   showBorder = false,
 }) {

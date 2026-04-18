@@ -10,13 +10,13 @@ import { githubAPI } from '../../api/client';
 
 // ── Cell size & gap must match GitHub exactly ────────────────────────────────
 const CELL = 10;  // px
-const GAP  = 3;   // px
-const COL  = CELL + GAP; // 13px per column
+const GAP = 3;   // px
+const COL = CELL + GAP; // 13px per column
 
 // ── Skeleton ─────────────────────────────────────────────────────────────────
 function Skeleton() {
   return (
-    <div className="w-full p-5 bg-[#0F1117] rounded-xl border border-[rgba(168,85,247,0.1)] animate-pulse">
+    <div className="w-full p-5 bg-[#0F1117] rounded-xl border border-[rgba(16,185,129,0.1)] animate-pulse">
       <div className="h-3 w-52 bg-[#1c2128] rounded mb-6" />
       <div className="flex gap-[3px]" style={{ height: 7 * COL - GAP }}>
         {Array.from({ length: 53 }).map((_, wi) => (
@@ -33,7 +33,7 @@ function Skeleton() {
 
 // ── Legend ────────────────────────────────────────────────────────────────────
 function Legend() {
-  const shades = ['#161b22', '#2d1b4d', '#4c2889', '#7c3aed', '#A855F7'];
+  const shades = ['#161b22', '#064e3b', '#047857', '#10b981', '#34d399'];
   return (
     <div className="flex items-center gap-[6px] text-[11px] text-[#7d8590]">
       <span>Less</span>
@@ -51,16 +51,16 @@ const GITHUB_USERNAME = 'Shubham-k-yadav'; // Your real GitHub username
 // Map contribution count → Theme purple shades
 function getDarkColor(count) {
   if (!count || count === 0) return '#161b22';
-  if (count <= 3)  return '#2d1b4d';
-  if (count <= 6)  return '#4c2889';
-  if (count <= 9)  return '#7c3aed';
-  return '#A855F7';
+  if (count <= 3) return '#064e3b';
+  if (count <= 6) return '#047857';
+  if (count <= 9) return '#10b981';
+  return '#34d399';
 }
 
 export default function ContributionHeatmap({ username = GITHUB_USERNAME }) {
-  const [data, setData]       = useState(null);   // GitHub calendar object
+  const [data, setData] = useState(null);   // GitHub calendar object
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState(null);
+  const [error, setError] = useState(null);
   const [tooltip, setTooltip] = useState(null);   // { day, x, y }
 
   // Fetch via our secure backend proxy
@@ -106,12 +106,12 @@ export default function ContributionHeatmap({ username = GITHUB_USERNAME }) {
   // ── Render states ────────────────────────────────────────────────────────
   if (loading) return <Skeleton />;
 
-  if (error) return (
-    <div className="p-6 bg-[#0F1117] rounded-xl border border-red-900/40 text-red-400 text-sm">
+  if (error || !data || !data.weeks) return (
+    <div className="p-6 bg-[#0F1117] rounded-xl border border-destructive/40 text-destructive text-sm">
       <div className="font-semibold mb-1">Cannot load heatmap</div>
-      <div className="opacity-75 text-xs">{error}</div>
+      <div className="opacity-75 text-xs">{error || 'Incomplete data received'}</div>
       <div className="mt-2 text-xs opacity-50 font-mono">
-        Make sure GITHUB_TOKEN is set in backend/.env and backend is running.
+        Check backend console and GITHUB_TOKEN permissions.
       </div>
     </div>
   );
@@ -123,12 +123,12 @@ export default function ContributionHeatmap({ username = GITHUB_USERNAME }) {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="w-full p-5 bg-[#0F1117] rounded-xl border border-[rgba(168,85,247,0.15)] shadow-2xl relative select-none"
+      className="w-full p-5 bg-[#0F1117] rounded-xl border border-[rgba(16,185,129,0.15)] shadow-2xl relative select-none"
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <span className="text-[13px] text-[#e6edf3] font-medium">
-          {totalContributions.toLocaleString()} contributions in the last year
+          {(totalContributions || 0).toLocaleString()} contributions in the last year
         </span>
       </div>
 
@@ -169,7 +169,7 @@ export default function ContributionHeatmap({ username = GITHUB_USERNAME }) {
               <div key={wi} className="flex flex-col gap-[3px]">
                 {week.contributionDays.map(day => {
                   const count = day.contributionCount;
-                  const bg    = count > 0 ? day.color : '#161b22';
+                  const bg = count > 0 ? day.color : '#161b22';
                   const today = day.date === new Date().toISOString().split('T')[0];
 
                   return (
@@ -180,7 +180,7 @@ export default function ContributionHeatmap({ username = GITHUB_USERNAME }) {
                         height: CELL,
                         backgroundColor: getDarkColor(day.contributionCount),
                         borderRadius: 2,
-                        outline: today ? '1px solid rgba(168,85,247,0.5)' : undefined,
+                        outline: today ? '1px solid rgba(16,185,129,0.5)' : undefined,
                         outlineOffset: 1,
                         cursor: 'pointer',
                         transition: 'filter 0.1s',
@@ -200,12 +200,12 @@ export default function ContributionHeatmap({ username = GITHUB_USERNAME }) {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between mt-4 pt-3 border-t border-[rgba(168,85,247,0.1)]">
+      <div className="flex items-center justify-between mt-4 pt-3 border-t border-[rgba(16,185,129,0.1)]">
         <a
           href={`https://github.com/${username}`}
           target="_blank"
           rel="noreferrer"
-          className="text-[11px] text-[#A855F7] hover:underline"
+          className="text-[11px] text-[#10b981] hover:underline"
         >
           Learn how we count contributions
         </a>
@@ -229,7 +229,7 @@ export default function ContributionHeatmap({ username = GITHUB_USERNAME }) {
               zIndex: 9999,
               pointerEvents: 'none',
             }}
-            className="bg-[#050505] border border-[rgba(168,85,247,0.3)] rounded-md px-3 py-2 shadow-2xl whitespace-nowrap"
+            className="bg-[#050505] border border-[rgba(16,185,129,0.3)] rounded-md px-3 py-2 shadow-2xl whitespace-nowrap"
           >
             <div className="text-[12px] font-semibold text-[#e6edf3]">
               {tooltip.day.contributionCount === 0

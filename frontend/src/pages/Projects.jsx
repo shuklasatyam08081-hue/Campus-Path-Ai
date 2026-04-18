@@ -94,7 +94,7 @@ export default function Projects() {
             <button key={f} onClick={() => setFilter(f)}
               style={{
                 padding: '0.4rem 1rem', borderRadius: '100px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
-                background: filter === f ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'rgba(255,255,255,0.04)',
+                background: filter === f ? 'linear-gradient(135deg, #7c3aed, var(--primary))' : 'rgba(255,255,255,0.04)',
                 color: filter === f ? 'white' : '#94a3b8', transition: 'all 0.2s',
               }}>
               {f}

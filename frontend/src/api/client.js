@@ -41,6 +41,12 @@ export const roadmapAPI = {
 export const githubAPI = {
   analyze: (username) => api.get(`/github/analyze/${username}`),
   getHeatmap: (username) => api.get(`/github/heatmap/${username}`),
+  reviewRepo: (username, repoName) => api.post('/github/review', { username, repoName }),
+};
+
+export const jobsAPI = {
+  getJobs: (role, limit = 50) => api.get(`/jobs?role=${encodeURIComponent(role)}&limit=${limit}`),
+  claimMilestone: (milestoneId) => api.post('/jobs/milestone/claim', { milestoneId }),
 };
 
 export default api;

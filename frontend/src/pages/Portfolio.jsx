@@ -71,7 +71,7 @@ export default function Portfolio() {
             <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '2rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.5rem' }}>
               {user?.name || 'Alex Developer'}
             </h1>
-            <p style={{ color: '#a855f7', fontWeight: 600, fontSize: '1rem', marginBottom: '0.75rem' }}>
+            <p style={{ color: 'var(--primary)', fontWeight: 600, fontSize: '1rem', marginBottom: '0.75rem' }}>
               {user?.targetRole || 'Fullstack'} Engineer · CampusPath AI Graduate
             </p>
             <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>

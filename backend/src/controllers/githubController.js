@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const { analyzeGitHub, getContributionHeatmap } = require('../services/githubService');
+const { reviewRepository } = require('../services/reviewService');
 
 const analyzeUser = async (req, res) => {
   const { username } = req.params;
@@ -37,4 +38,17 @@ const getHeatmap = async (req, res) => {
   }
 };
 
-module.exports = { analyzeUser, getHeatmap };
+const handleReview = async (req, res) => {
+  const { username, repoName } = req.body;
+  if (!username || !repoName) return res.status(400).json({ success: false, message: 'Username and repoName required' });
+  
+  try {
+    const analysis = await reviewRepository(username, repoName);
+    res.json({ success: true, data: analysis });
+  } catch (error) {
+    console.error('GitHub review controller error:', error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { analyzeUser, getHeatmap, handleReview };

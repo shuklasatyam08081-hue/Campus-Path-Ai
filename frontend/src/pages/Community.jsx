@@ -8,7 +8,7 @@ const LEADERBOARD = [
   { rank: 3, name: 'Aisha Patel', role: 'DevOps', readiness: 88, streak: 28, avatar: 'A', color: '#06b6d4' },
   { rank: 4, name: 'Ryan Park', role: 'Fullstack', readiness: 82, streak: 21, avatar: 'R', color: '#10b981' },
   { rank: 5, name: 'Sofia Martins', role: 'AI/ML', readiness: 78, streak: 19, avatar: 'S', color: '#ec4899' },
-  { rank: 6, name: 'You', role: 'Fullstack', readiness: 42, streak: 7, avatar: 'Y', color: '#a855f7', isYou: true },
+  { rank: 6, name: 'You', role: 'Fullstack', readiness: 42, streak: 7, avatar: 'Y', color: 'var(--primary)', isYou: true },
 ];
 
 const POSTS = [
@@ -35,7 +35,7 @@ export default function Community() {
 
   const submitPost = () => {
     if (!newPost.trim()) return;
-    const fresh = { id: Date.now(), author: 'You', avatar: 'Y', time: 'just now', tag: 'Tip', content: newPost, upvotes: 0, comments: 0, color: '#a855f7' };
+    const fresh = { id: Date.now(), author: 'You', avatar: 'Y', time: 'just now', tag: 'Tip', content: newPost, upvotes: 0, comments: 0, color: 'var(--primary)' };
     setPosts(p => [fresh, ...p]);
     setNewPost('');
     toast.success('Post published to the community!');
@@ -82,10 +82,10 @@ export default function Community() {
                   <div style={{ display: 'flex', gap: '1rem' }}>
                     <button onClick={() => toggleUpvote(post.id)} style={{
                       display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'none', border: 'none',
-                      color: upvoted[post.id] ? '#a855f7' : '#64748b', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600,
+                      color: upvoted[post.id] ? 'var(--primary)' : '#64748b', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600,
                       transition: 'color 0.2s',
                     }}>
-                      <ThumbsUp size={14} fill={upvoted[post.id] ? '#a855f7' : 'none'} /> {post.upvotes}
+                      <ThumbsUp size={14} fill={upvoted[post.id] ? 'var(--primary)' : 'none'} /> {post.upvotes}
                     </button>
                     <button style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '0.8rem' }}>
                       <MessageSquare size={14} /> {post.comments}
@@ -127,7 +127,7 @@ export default function Community() {
                     {avatar}
                   </div>
                   <div style={{ flex: 1, overflow: 'hidden' }}>
-                    <div style={{ fontWeight: 600, fontSize: '0.825rem', color: isYou ? '#a855f7' : '#f8fafc', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</div>
+                    <div style={{ fontWeight: 600, fontSize: '0.825rem', color: isYou ? 'var(--primary)' : '#f8fafc', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</div>
                     <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{role}</div>
                   </div>
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>

@@ -5,6 +5,9 @@ import {
   Globe, Wrench, Trophy, Users, Settings, LogOut, Zap
 } from 'lucide-react';
 import ThemeToggle from '../ThemeToggle';
+import { motion } from 'framer-motion';
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -17,6 +20,7 @@ const navItems = [
   { to: '/portfolio-builder', icon: Wrench, label: 'Builder' },
   { to: '/achievements', icon: Trophy, label: 'Achievements' },
   { to: '/community', icon: Users, label: 'Community' },
+  { to: '/focus', icon: Zap, label: 'Focus Rooms' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ];
 
@@ -30,113 +34,79 @@ export default function Sidebar() {
   };
 
   return (
-    <header style={{
-      position: 'fixed',
-      top: 0, left: 0, right: 0,
-      height: '64px',
-      background: 'var(--bg-glass)',
-      backdropFilter: 'blur(24px)',
-      display: 'flex',
-      alignItems: 'center',
-      zIndex: 100,
-      padding: '0 1.5rem',
-      gap: '2rem'
-    }}>
-      {/* Background orb mapping */}
-      <div style={{
-        position: 'absolute', top: -50, left: '20%',
-        width: 300, height: 100,
-        background: 'radial-gradient(ellipse, rgba(124,58,237,0.15) 0%, transparent 70%)',
-        pointerEvents: 'none',
-      }} />
-
+    <motion.header 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="fixed top-0 left-0 right-0 h-14 bg-card border-b border-border z-50 flex items-center px-4 gap-6"
+    >
       {/* Logo */}
-      <NavLink to="/dashboard" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
-        <div style={{
-          width: 34, height: 34, flexShrink: 0,
-          background: 'var(--gradient-vibrant)',
-          borderRadius: 10,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <Zap size={16} color="white" />
+      <NavLink to="/dashboard" className="flex items-center gap-2.5 shrink-0 group">
+        <div className="w-8 h-8 shrink-0 bg-primary/10 rounded-lg flex items-center justify-center border border-primary/20 group-hover:bg-primary/20 transition-all">
+          <Zap size={16} className="text-primary" fill="currentColor" />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Space Grotesk', sans-serif", lineHeight: 1 }}>
+        <div className="flex flex-col justify-center">
+          <div className="text-sm font-bold text-foreground font-sans tracking-tight">
             CampusPath
           </div>
         </div>
       </NavLink>
 
-      {/* Horizontal Scrollable Nav */}
-      <nav style={{
-        flex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.5rem',
-        overflowX: 'auto',
-        scrollbarWidth: 'none', /* Firefox */
-        msOverflowStyle: 'none', /* IE/Edge */
-      }} className="hide-scroll">
-        <style>{`.hide-scroll::-webkit-scrollbar { display: none; }`}</style>
+      {/* Horizontal Nav Bar - GitHub Style */}
+      <nav className="flex-1 flex items-center gap-1 overflow-x-auto no-scrollbar relative">
         {navItems.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}
             to={to}
-            style={({ isActive }) => ({
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.4rem 0.8rem',
-              borderRadius: '8px',
-              textDecoration: 'none',
-              transition: 'all 0.2s ease',
-              background: isActive ? 'var(--bg-card)' : 'transparent',
-              color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
-              fontWeight: isActive ? 600 : 500,
-              fontSize: '0.85rem',
-              whiteSpace: 'nowrap'
-            })}
+            className={({ isActive }) => twMerge(
+              clsx(
+                "flex items-center gap-2 px-3 py-4 text-[13px] transition-all whitespace-nowrap relative font-medium group h-full",
+                isActive 
+                  ? "text-foreground font-semibold" 
+                  : "text-muted-foreground hover:text-foreground"
+              )
+            )}
           >
-            <Icon size={14} style={{ color: "inherit" }} />
-            <span>{label}</span>
+            {({ isActive }) => (
+              <>
+                <Icon size={16} className={clsx("transition-transform", isActive ? "text-foreground" : "text-muted-foreground")} />
+                <span>{label}</span>
+                {isActive && (
+                  <motion.div 
+                    layoutId="sidebar-active"
+                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#fd8c73] rounded-full z-10"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 0 }}>
-        <div className="hide-mobile">
+      <div className="flex items-center gap-3 shrink-0">
+        <div className="hidden sm:block">
           <ThemeToggle />
         </div>
         
         {user && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} className="hide-mobile">
-            <div style={{
-              width: 32, height: 32, borderRadius: '50%',
-              background: 'var(--gradient-vibrant)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '0.8rem', fontWeight: 700, color: 'white',
-            }}>
-              {user.name?.[0]?.toUpperCase() || 'U'}
+          <div className="hidden sm:flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center text-xs font-bold text-foreground overflow-hidden">
+               {user.githubUsername ? (
+                 <img src={`https://github.com/${user.githubUsername}.png`} alt={user.name} className="w-full h-full" />
+               ) : (
+                 user.name?.[0]?.toUpperCase() || 'U'
+               )}
             </div>
           </div>
         )}
         <button
           onClick={handleLogout}
-          style={{
-            background: 'var(--bg-card)',
-            width: 32, height: 32, borderRadius: '8px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s ease',
-            border: 'none'
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; e.currentTarget.style.color = '#f87171'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-card)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+          className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
           title="Sign Out"
         >
           <LogOut size={16} />
         </button>
       </div>
-    </header>
+    </motion.header>
   );
 }
-
