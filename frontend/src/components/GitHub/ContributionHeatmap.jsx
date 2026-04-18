@@ -16,13 +16,13 @@ const COL = CELL + GAP; // 13px per column
 // ── Skeleton ─────────────────────────────────────────────────────────────────
 function Skeleton() {
   return (
-    <div className="w-full p-5 bg-[#0F1117] rounded-xl border border-[rgba(16,185,129,0.1)] animate-pulse">
-      <div className="h-3 w-52 bg-[#1c2128] rounded mb-6" />
+    <div className="w-full p-5 bg-card rounded-xl border border-border animate-pulse shadow-sm">
+      <div className="h-3 w-52 bg-muted rounded mb-6" />
       <div className="flex gap-[3px]" style={{ height: 7 * COL - GAP }}>
         {Array.from({ length: 53 }).map((_, wi) => (
           <div key={wi} className="flex flex-col gap-[3px]">
             {Array.from({ length: 7 }).map((_, di) => (
-              <div key={di} style={{ width: CELL, height: CELL }} className="rounded-[2px] bg-[#21262d]" />
+              <div key={di} style={{ width: CELL, height: CELL }} className="rounded-[2px] bg-muted" />
             ))}
           </div>
         ))}
@@ -33,9 +33,9 @@ function Skeleton() {
 
 // ── Legend ────────────────────────────────────────────────────────────────────
 function Legend() {
-  const shades = ['#161b22', '#064e3b', '#047857', '#10b981', '#34d399'];
+  const shades = ['var(--color-muted)', '#064e3b', '#047857', '#10b981', '#34d399'];
   return (
-    <div className="flex items-center gap-[6px] text-[11px] text-[#7d8590]">
+    <div className="flex items-center gap-[6px] text-[11px] text-muted-foreground">
       <span>Less</span>
       {shades.map(c => (
         <div key={c} style={{ width: CELL, height: CELL, backgroundColor: c, borderRadius: 2 }} />
@@ -50,7 +50,7 @@ const GITHUB_USERNAME = 'Shubham-k-yadav'; // Your real GitHub username
 
 // Map contribution count → Theme purple shades
 function getDarkColor(count) {
-  if (!count || count === 0) return '#161b22';
+  if (!count || count === 0) return 'var(--color-muted)';
   if (count <= 3) return '#064e3b';
   if (count <= 6) return '#047857';
   if (count <= 9) return '#10b981';
@@ -107,7 +107,7 @@ export default function ContributionHeatmap({ username = GITHUB_USERNAME }) {
   if (loading) return <Skeleton />;
 
   if (error || !data || !data.weeks) return (
-    <div className="p-6 bg-[#0F1117] rounded-xl border border-destructive/40 text-destructive text-sm">
+    <div className="p-6 bg-card rounded-xl border border-destructive/40 text-destructive text-sm shadow-sm">
       <div className="font-semibold mb-1">Cannot load heatmap</div>
       <div className="opacity-75 text-xs">{error || 'Incomplete data received'}</div>
       <div className="mt-2 text-xs opacity-50 font-mono">
@@ -123,11 +123,11 @@ export default function ContributionHeatmap({ username = GITHUB_USERNAME }) {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="w-full p-5 bg-[#0F1117] rounded-xl border border-[rgba(16,185,129,0.15)] shadow-2xl relative select-none"
+      className="w-full p-5 bg-card rounded-xl border border-border shadow-sm relative select-none"
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <span className="text-[13px] text-[#e6edf3] font-medium">
+        <span className="text-[13px] text-foreground font-medium">
           {(totalContributions || 0).toLocaleString()} contributions in the last year
         </span>
       </div>
@@ -136,7 +136,7 @@ export default function ContributionHeatmap({ username = GITHUB_USERNAME }) {
       <div className="flex gap-[3px]" style={{ userSelect: 'none' }}>
         {/* Day-of-week sidebar */}
         <div
-          className="flex flex-col justify-between text-[9px] text-[#7d8590] pr-[6px]"
+          className="flex flex-col justify-between text-[9px] text-muted-foreground pr-[6px]"
           style={{ marginTop: 16 + GAP, height: 7 * COL - GAP }}
         >
           <span />
@@ -155,7 +155,7 @@ export default function ContributionHeatmap({ username = GITHUB_USERNAME }) {
             {monthLabels.map(({ label, weekIndex }) => (
               <span
                 key={`${label}-${weekIndex}`}
-                className="absolute text-[10px] text-[#7d8590]"
+                className="absolute text-[10px] text-muted-foreground"
                 style={{ left: weekIndex * COL }}
               >
                 {label}
@@ -200,12 +200,12 @@ export default function ContributionHeatmap({ username = GITHUB_USERNAME }) {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between mt-4 pt-3 border-t border-[rgba(16,185,129,0.1)]">
+      <div className="flex items-center justify-between mt-4 pt-3 border-t border-border">
         <a
           href={`https://github.com/${username}`}
           target="_blank"
           rel="noreferrer"
-          className="text-[11px] text-[#10b981] hover:underline"
+          className="text-[11px] text-emerald-500 hover:underline"
         >
           Learn how we count contributions
         </a>
@@ -229,14 +229,14 @@ export default function ContributionHeatmap({ username = GITHUB_USERNAME }) {
               zIndex: 9999,
               pointerEvents: 'none',
             }}
-            className="bg-[#050505] border border-[rgba(16,185,129,0.3)] rounded-md px-3 py-2 shadow-2xl whitespace-nowrap"
+            className="bg-card border border-border rounded-md px-3 py-2 shadow-2xl whitespace-nowrap"
           >
-            <div className="text-[12px] font-semibold text-[#e6edf3]">
+            <div className="text-[12px] font-semibold text-foreground">
               {tooltip.day.contributionCount === 0
                 ? 'No contributions'
                 : `${tooltip.day.contributionCount} contribution${tooltip.day.contributionCount !== 1 ? 's' : ''}`}
             </div>
-            <div className="text-[11px] text-[#7d8590] mt-[1px]">
+            <div className="text-[11px] text-muted-foreground mt-[1px]">
               {new Date(tooltip.day.date).toLocaleDateString('en-US', {
                 weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
               })}
@@ -248,7 +248,7 @@ export default function ContributionHeatmap({ username = GITHUB_USERNAME }) {
               width: 0, height: 0,
               borderLeft: '6px solid transparent',
               borderRight: '6px solid transparent',
-              borderTop: '6px solid #30363d',
+              borderTop: '6px solid var(--color-border)',
             }} />
           </motion.div>
         )}
