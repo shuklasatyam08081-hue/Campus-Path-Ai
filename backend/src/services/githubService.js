@@ -188,17 +188,17 @@ const analyzeGitHub = async (username) => {
   }
 };
 
-const getContributionHeatmap = async (username) => {
-  console.log(`📡 Fetching GraphQL Heatmap for: ${username}...`);
+const getContributionHeatmap = async (username, year) => {
+  console.log(`📡 Fetching GraphQL Heatmap for: ${username} (Year: ${year || 'Last 365 days'})`);
 
   if (!process.env.GITHUB_TOKEN) {
     throw new Error('GITHUB_TOKEN is not set in backend/.env');
   }
 
   const query = `
-    query($login: String!) {
+    query($login: String!, $from: DateTime, $to: DateTime) {
       user(login: $login) {
-        contributionsCollection {
+        contributionsCollection(from: $from, to: $to) {
           contributionCalendar {
             totalContributions
             weeks {
@@ -214,10 +214,16 @@ const getContributionHeatmap = async (username) => {
     }
   `;
 
+  let variables = { login: username };
+  if (year) {
+    variables.from = `${year}-01-01T00:00:00Z`;
+    variables.to = `${year}-12-31T23:59:59Z`;
+  }
+
   try {
     const response = await axios.post(
       'https://api.github.com/graphql',
-      { query, variables: { login: username } },
+      { query, variables },
       { headers: getHeaders() }
     );
 

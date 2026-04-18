@@ -27,10 +27,11 @@ const analyzeUser = async (req, res) => {
 
 const getHeatmap = async (req, res) => {
   const { username } = req.params;
+  const { year } = req.query;
   if (!username) return res.status(400).json({ success: false, message: 'Username required' });
   
   try {
-    const data = await getContributionHeatmap(username);
+    const data = await getContributionHeatmap(username, year);
     res.json({ success: true, data });
   } catch (error) {
     console.error('GitHub heatmap controller error:', error.message);
