@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { roadmapAPI } from '../api/client';
-import { RefreshCw, GitBranch, ExternalLink, Play, Zap, Filter, Brain } from 'lucide-react';
+import { RefreshCw, GitBranch, ExternalLink, Play, Zap, Filter, Brain, Check } from 'lucide-react';
 
 export default function Projects() {
   const { user } = useAuth();
@@ -72,10 +72,12 @@ export default function Projects() {
   );
 
   if (!activeRoadmap) return (
-    <div style={{ textAlign: 'center', padding: '4rem 2rem', background: 'rgba(255,255,255,0.02)', borderRadius: '24px', margin: '2rem' }}>
-      <Brain size={48} color="#7c3aed" style={{ marginBottom: '1.5rem' }} />
-      <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f8fafc', marginBottom: '1rem' }}>No Active Roadmap Found</h2>
-      <p style={{ color: '#64748b', marginBottom: '2rem', maxWidth: '400px', margin: '0 auto 2rem' }}>
+    <div className="text-center p-16 bg-card border border-border rounded-2xl mx-8 shadow-sm">
+      <div className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
+        <Brain size={32} className="text-primary" />
+      </div>
+      <h2 className="text-2xl font-bold text-foreground mb-4">No Active Roadmap Found</h2>
+      <p className="text-muted-foreground max-w-md mx-auto mb-8">
         Project Forge generates coding projects based on your AI learning path. Generate a roadmap to unlock your projects.
       </p>
       <button className="btn-primary" onClick={() => window.location.href = '/dashboard'}>Go to Dashboard</button>
@@ -83,20 +85,20 @@ export default function Projects() {
   );
 
   return (
-    <div style={{ paddingBottom: '3rem', animation: 'fadeIn 0.3s ease-out' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+    <div className="pb-12 animate-in fade-in duration-300">
+      <div className="flex justify-between items-start mb-8 flex-wrap gap-4 border-b border-border pb-6">
         <div>
-          <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.75rem', fontWeight: 700, color: '#f8fafc' }}>Project Forge</h1>
-          <p style={{ color: '#64748b', fontSize: '0.875rem' }}>AI portfolio projects mapped directly to your {activeRoadmap.targetRole} track</p>
+          <h1 className="text-2xl font-bold text-foreground">Project Forge</h1>
+          <p className="text-muted-foreground text-sm mt-1">AI portfolio projects mapped directly to your {activeRoadmap.targetRole} track</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <div className="flex gap-2 flex-wrap bg-muted/50 p-1 rounded-lg border border-border">
           {FILTERS.map(f => (
             <button key={f} onClick={() => setFilter(f)}
-              style={{
-                padding: '0.4rem 1rem', borderRadius: '100px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
-                background: filter === f ? 'linear-gradient(135deg, #7c3aed, var(--primary))' : 'rgba(255,255,255,0.04)',
-                color: filter === f ? 'white' : '#94a3b8', transition: 'all 0.2s',
-              }}>
+              className={`px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                filter === f 
+                ? 'bg-background shadow-sm border border-border text-foreground' 
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              }`}>
               {f}
             </button>
           ))}
@@ -104,78 +106,79 @@ export default function Projects() {
       </div>
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         {[
-          { label: 'Total Projects', value: projects.length, color: '#7c3aed' },
-          { label: 'Completed', value: projects.filter(p => p.status === 'Completed').length, color: '#10b981' },
-          { label: 'Upcoming', value: projects.filter(p => p.status === 'Upcoming').length, color: '#06b6d4' },
+          { label: 'Total Projects', value: projects.length, color: 'text-foreground' },
+          { label: 'Completed', value: projects.filter(p => p.status === 'Completed').length, color: 'text-emerald-500' },
+          { label: 'Upcoming', value: projects.filter(p => p.status === 'Upcoming').length, color: 'text-sky-500' },
         ].map(({ label, value, color }) => (
-          <div key={label} className="stat-card" style={{ textAlign: 'center' }}>
-            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '2rem', fontWeight: 800, color }}>{value}</div>
-            <div style={{ color: '#64748b', fontSize: '0.8rem' }}>{label}</div>
+          <div key={label} className="bg-card border border-border rounded-xl p-6 text-center shadow-sm">
+            <div className={`text-3xl font-black ${color} mb-1`}>{value}</div>
+            <div className="text-muted-foreground text-xs uppercase tracking-wider font-bold">{label}</div>
           </div>
         ))}
       </div>
 
       {/* Project Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.25rem' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.map(project => {
           const { badge, bar } = STATUS_STYLES[project.status];
           return (
-            <div key={project.id} className="glass-card" style={{ padding: '1.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                <div>
-                  <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                    <span className={`badge ${badge}`} style={{ fontSize: '0.65rem' }}>{project.status}</span>
-                    <span className="badge" style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.05)', color: '#64748b' }}>Week {project.week}</span>
+            <div key={project.id} className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col group">
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className={`badge ${badge} text-[10px] uppercase font-bold tracking-wider`}>{project.status}</span>
+                    <span className="badge badge-gray text-[10px] uppercase font-bold tracking-wider">Week {project.week}</span>
                   </div>
-                  <h3 style={{ fontWeight: 700, fontSize: '1rem', color: '#f8fafc', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '280px' }}>{project.title}</h3>
+                  <h3 className="font-bold text-foreground text-lg truncate pr-2 group-hover:text-primary transition-colors">{project.title}</h3>
                 </div>
               </div>
 
-              <p style={{ color: '#64748b', fontSize: '0.825rem', lineHeight: 1.6, marginBottom: '1.25rem', minHeight: '3.2rem', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+              <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1 line-clamp-2">
                 {project.description}
               </p>
 
               {/* Tech Stack */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '1.25rem', minHeight: '22px' }}>
+              <div className="flex flex-wrap gap-1.5 mb-6 min-h-[24px]">
                 {project.stack.map(tech => (
-                  <span key={tech} className="badge badge-blue" style={{ fontSize: '0.65rem' }}>{tech}</span>
+                  <span key={tech} className="bg-muted text-muted-foreground px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider">
+                    {tech}
+                  </span>
                 ))}
               </div>
 
               {/* Build Velocity Bar */}
-              <div style={{ marginBottom: '1.25rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
-                  <span style={{ fontSize: '0.7rem', color: '#475569' }}>Tasks Completed</span>
-                  <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{project.progress}%</span>
+              <div className="mb-6">
+                <div className="flex justify-between items-end mb-1.5">
+                  <span className="text-xs font-semibold text-foreground">Tasks Completed</span>
+                  <span className="text-xs font-bold" style={{ color: bar }}>{project.progress}%</span>
                 </div>
-                <div className="progress-bar">
-                  <div style={{ height: '100%', borderRadius: 3, width: `${project.progress}%`, background: `linear-gradient(90deg, ${bar}, ${bar}99)`, transition: 'width 1.5s ease', boxShadow: `0 0 6px ${bar}66` }} />
+                <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                  <div className="h-full rounded-full transition-all duration-1000 ease-out" 
+                    style={{ width: `${project.progress}%`, backgroundColor: bar }} 
+                  />
                 </div>
               </div>
 
               {/* Actions */}
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <div className="flex gap-3">
                 {project.status === 'Completed' ? (
                   <>
-                    <button className="btn-secondary" onClick={() => window.open(`https://github.com/${user.githubUsername}/${project.repoName}`, '_blank')}
-                      style={{ flex: 1, justifyContent: 'center', fontSize: '0.8rem', padding: '0.5rem' }}>
+                    <button className="flex-1 btn-secondary text-xs flex items-center justify-center gap-2 py-2" onClick={() => window.open(`https://github.com/${user.githubUsername}/${project.repoName}`, '_blank')}>
                       <GitBranch size={14} /> View Repo
                     </button>
-                    <button className="btn-green" onClick={() => toast.success('Launch verification triggered!')}
-                      style={{ flex: 1, justifyContent: 'center', fontSize: '0.8rem', padding: '0.5rem' }}>
+                    <button className="flex-1 btn-green text-xs flex items-center justify-center gap-2 py-2" onClick={() => toast.success('Launch verification triggered!')}>
                       <Check size={14} /> Verified
                     </button>
                   </>
                 ) : project.status === 'In Progress' ? (
-                  <button className="btn-primary" onClick={() => toast.info('Navigating to specific week walkthrough...')}
-                    style={{ flex: 1, justifyContent: 'center', fontSize: '0.8rem', padding: '0.5rem' }}>
+                  <button className="flex-1 btn-primary text-xs flex items-center justify-center gap-2 py-2 w-full" onClick={() => toast.info('Navigating to specific week walkthrough...')}>
                     <Play size={14} /> Resume Week {project.week}
                   </button>
                 ) : (
-                  <button className="btn-primary" style={{ flex: 1, justifyContent: 'center', fontSize: '0.8rem', padding: '0.5rem', opacity: 0.5 }} disabled>
-                    <Zap size={14} /> Unlock by completing Week {project.week - 1}
+                  <button className="flex-1 btn-secondary text-xs flex items-center justify-center gap-2 py-2 w-full opacity-50" disabled>
+                    <Zap size={14} /> Unlock Week {project.week}
                   </button>
                 )}
               </div>
