@@ -133,7 +133,7 @@ export default function ContributionHeatmap({ username = GITHUB_USERNAME }) {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="w-full p-5 bg-[#0F1117] rounded-xl border border-[rgba(16,185,129,0.15)] shadow-2xl relative select-none"
+      className="w-max min-w-full p-5 bg-[#0F1117] rounded-xl border border-[rgba(16,185,129,0.15)] shadow-2xl relative select-none"
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
