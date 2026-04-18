@@ -8,19 +8,19 @@ import { githubAPI } from '../../api/client';
  * using the official GraphQL API data structure (weeks → contributionDays).
  */
 
-// ── Cell size & gap must match GitHub exactly ────────────────────────────────
-const CELL = 10;  // px
-const GAP = 3;   // px
-const COL = CELL + GAP; // 13px per column
+// ── Dynamic Cell Size via CSS Variables ──────────────────────────────────────
+const CELL = 'var(--cell-size)';
+const GAP = 'var(--cell-gap)';
+const COL = 'calc(var(--cell-size) + var(--cell-gap))';
 
 // ── Skeleton ─────────────────────────────────────────────────────────────────
 function Skeleton() {
   return (
-    <div className="w-full p-5 bg-[#0F1117] rounded-xl border border-[rgba(16,185,129,0.1)] animate-pulse">
+    <div className="w-full p-5 bg-[#0F1117] rounded-xl border border-[rgba(16,185,129,0.1)] animate-pulse" style={{ '--cell-size': '10px', '--cell-gap': '3px' }}>
       <div className="h-3 w-52 bg-[#1c2128] rounded mb-6" />
-      <div className="flex gap-[3px]" style={{ height: 7 * COL - GAP }}>
+      <div className="flex gap-[var(--cell-gap)]" style={{ height: 'calc(7 * var(--cell-size) + 6 * var(--cell-gap))' }}>
         {Array.from({ length: 53 }).map((_, wi) => (
-          <div key={wi} className="flex flex-col gap-[3px]">
+          <div key={wi} className="flex flex-col gap-[var(--cell-gap)]">
             {Array.from({ length: 7 }).map((_, di) => (
               <div key={di} style={{ width: CELL, height: CELL }} className="rounded-[2px] bg-[#21262d]" />
             ))}
@@ -35,7 +35,7 @@ function Skeleton() {
 function Legend() {
   const shades = ['#161b22', '#064e3b', '#047857', '#10b981', '#34d399'];
   return (
-    <div className="flex items-center gap-[6px] text-[11px] text-[#7d8590]">
+    <div className="flex items-center text-[11px] text-[#7d8590]" style={{ gap: 'calc(var(--cell-gap) * 2)' }}>
       <span>Less</span>
       {shades.map(c => (
         <div key={c} style={{ width: CELL, height: CELL, backgroundColor: c, borderRadius: 2 }} />
@@ -133,7 +133,12 @@ export default function ContributionHeatmap({ username = GITHUB_USERNAME }) {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="w-max min-w-full p-5 bg-[#0F1117] rounded-xl border border-[rgba(16,185,129,0.15)] shadow-2xl relative select-none"
+      className="w-full sm:w-max sm:min-w-full p-3 sm:p-5 bg-[#0F1117] rounded-xl border border-[rgba(16,185,129,0.15)] shadow-2xl relative select-none"
+      style={{
+        containerType: 'inline-size',
+        '--cell-size': 'clamp(4px, calc(100cqi / 65), 10px)',
+        '--cell-gap': 'clamp(2px, calc(100cqi / 200), 3px)',
+      }}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
@@ -155,11 +160,11 @@ export default function ContributionHeatmap({ username = GITHUB_USERNAME }) {
       </div>
 
       {/* Grid */}
-      <div className="flex gap-[3px]" style={{ userSelect: 'none' }}>
+      <div className="flex overflow-hidden" style={{ userSelect: 'none', gap: GAP }}>
         {/* Day-of-week sidebar */}
         <div
-          className="flex flex-col justify-between text-[9px] text-[#7d8590] pr-[6px]"
-          style={{ marginTop: 16 + GAP, height: 7 * COL - GAP }}
+          className="flex flex-col justify-between text-[6px] sm:text-[9px] text-[#7d8590] pr-1 sm:pr-[6px]"
+          style={{ marginTop: `calc(16px + ${GAP})`, height: `calc(7 * ${COL} - ${GAP})` }}
         >
           <span />
           <span>Mon</span>
@@ -186,9 +191,9 @@ export default function ContributionHeatmap({ username = GITHUB_USERNAME }) {
           </div>
 
           {/* Week columns */}
-          <div className="flex gap-[3px]">
+          <div className="flex" style={{ gap: 'var(--cell-gap)' }}>
             {weeks.map((week, wi) => (
-              <div key={wi} className="flex flex-col gap-[3px]">
+              <div key={wi} className="flex flex-col" style={{ gap: 'var(--cell-gap)' }}>
                 {week.contributionDays.map(day => {
                   const count = day.contributionCount;
                   const bg = count > 0 ? day.color : '#161b22';

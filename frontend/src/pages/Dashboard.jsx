@@ -305,7 +305,7 @@ export default function Dashboard() {
         {/* Heatmap Area */}
         <div className="bg-card border border-border rounded-xl p-6 shadow-sm overflow-hidden min-h-[220px] flex flex-col justify-center">
           <h3 className="font-bold text-foreground text-sm mb-1 uppercase tracking-wider text-muted-foreground">Contribution DNA</h3>
-          <div className="-ml-3 mt-4 overflow-x-auto no-scrollbar">
+          <div className="mt-4 overflow-x-auto no-scrollbar">
             <ContributionHeatmap username={user?.githubUsername || 'Shubham-k-yadav'} />
           </div>
         </div>
