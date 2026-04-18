@@ -124,7 +124,7 @@ export default function Landing() {
                 </div>
                 <div className="flex-1 text-xs text-muted-foreground font-mono flex justify-center">github_analysis.js</div>
               </div>
-              <div className="p-6 md:p-10 text-left font-mono text-sm overflow-hidden">
+              <div className="p-4 md:p-10 text-left font-mono text-sm overflow-hidden">
                 <pre className="text-muted-foreground italic opacity-70">{"// AI-Powered Roadmap Initialization..."}</pre>
                 <div className="flex gap-4 mt-4">
                   <div className="space-y-2 opacity-30">
@@ -151,7 +151,7 @@ export default function Landing() {
               </div>
             </div>
             {/* Floating decoration */}
-            <div className="absolute -top-6 -right-6 w-12 h-12 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20 rotate-12">
+            <div className="absolute -top-4 -right-6 w-12 h-12 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20 rotate-12">
                <Zap size={24} className="text-primary-foreground" />
             </div>
           </motion.div>
@@ -196,14 +196,14 @@ export default function Landing() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+            className="grid grid-cols-1 md:grid-cols-3 gap-4"
           >
             {FEATURES.map((feature, idx) => (
               <motion.div 
                 key={feature.title}
                 variants={itemVariants}
                 whileHover={{ y: -4, scale: 1.01 }}
-                className={feature.size + " glass-panel p-8 cursor-pointer hover:border-primary/50 hover:shadow-md transition-all duration-300 group"}
+                className={feature.size + " glass-panel p-5 cursor-pointer hover:border-primary/50 hover:shadow-md transition-all duration-300 group"}
               >
                 <div className="w-12 h-12 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
                   <feature.icon size={24} />
@@ -231,7 +231,7 @@ export default function Landing() {
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.2 }}
-                  className="flex items-center gap-6 p-6 md:p-8 rounded-lg bg-background border border-border hover:border-primary/30 transition-all"
+                  className="flex items-center gap-4 p-4 md:p-5 rounded-lg bg-background border border-border hover:border-primary/30 transition-all"
                 >
                   <span className="text-4xl md:text-5xl font-black font-sans text-primary/10 leading-none">{step.s}</span>
                   <div>
@@ -247,14 +247,14 @@ export default function Landing() {
       {/* Testimonials */}
       <section className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {TESTIMONIALS.map((t, idx) => (
               <motion.div 
                 key={t.name}
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ delay: idx * 0.15 }}
-                className="p-8 rounded-lg bg-card border border-border shadow-sm relative flex flex-col justify-between"
+                className="p-5 rounded-lg bg-card border border-border shadow-sm relative flex flex-col justify-between"
               >
                 <div className="flex gap-1 mb-4">
                   {[...Array(t.rating)].map((_, i) => <Star key={i} size={14} className="fill-primary text-primary" />)}
@@ -298,14 +298,14 @@ export default function Landing() {
 
       {/* Footer */}
       <footer className="py-12 border-t border-border mt-12 bg-muted px-6">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-5">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <Zap size={16} className="text-primary-foreground" />
             </div>
             <span className="font-bold text-lg font-sans tracking-tighter">CampusPath AI</span>
           </div>
-          <div className="flex gap-8 text-sm text-muted-foreground font-medium">
+          <div className="flex gap-5 text-sm text-muted-foreground font-medium">
              <Link to="/about" className="hover:text-primary transition-colors">About</Link>
              <Link to="/contact" className="hover:text-primary transition-colors">Contact</Link>
              <Link to="/terms" className="hover:text-primary transition-colors">Terms</Link>

@@ -102,7 +102,7 @@ function InterviewSimulator({ job, onClose }) {
           <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition-colors"><X size={20} /></button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed ${
@@ -192,7 +192,7 @@ function ATSGrader({ job, onClose }) {
         initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
         className="bg-card border border-border w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden"
       >
-        <div className="p-6 border-b border-border flex justify-between items-center bg-muted/30">
+        <div className="p-4 border-b border-border flex justify-between items-center bg-muted/30">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
               <FileText className="text-orange-500" size={20} />
@@ -205,10 +205,10 @@ function ATSGrader({ job, onClose }) {
           <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition-colors"><X size={20} /></button>
         </div>
 
-        <div className="p-8">
+        <div className="p-5">
           {!result ? (
             <div className="space-y-6">
-              <div className="border-2 border-dashed border-border rounded-2xl p-8 flex flex-col items-center justify-center bg-muted/20 hover:bg-muted/30 transition-all cursor-pointer relative group">
+              <div className="border-2 border-dashed border-border rounded-2xl p-5 flex flex-col items-center justify-center bg-muted/20 hover:bg-muted/30 transition-all cursor-pointer relative group">
                 <input type="file" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf" />
                 <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Upload className="text-primary" size={24} />
@@ -371,7 +371,7 @@ export default function Jobs() {
   );
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-8 pb-12">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-5 pb-4">
       {/* Modals */}
       <AnimatePresence>
         {interviewJob && <InterviewSimulator job={interviewJob} onClose={() => setInterviewJob(null)} />}
@@ -435,7 +435,7 @@ export default function Jobs() {
           return (
             <motion.div 
               layout key={job.id} 
-              className="bg-card border border-border p-6 rounded-2xl shadow-sm hover:border-primary/50 transition-all flex flex-col md:flex-row gap-6 relative group overflow-hidden"
+              className="bg-card border border-border p-4 rounded-2xl shadow-sm hover:border-primary/50 transition-all flex flex-col md:flex-row gap-4 relative group overflow-hidden"
             >
               <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
                  <Tag className="text-muted-foreground/30" size={120} style={{ transform: 'rotate(-20deg) translate(40px, -20px)' }} />

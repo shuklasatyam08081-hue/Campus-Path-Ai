@@ -131,7 +131,7 @@ export default function Progress() {
   const totalXP = user?.xp || (milestones.filter(m => m.claimed).reduce((sum, m) => sum + m.xp, 0) + (tasksCompleted * 10));
 
   return (
-    <div className="animate-in fade-in duration-500 pb-12 space-y-6">
+    <div className="animate-in fade-in duration-500 pb-4 space-y-6">
       
       {/* Header */}
       <div className="mb-8">
@@ -140,7 +140,7 @@ export default function Progress() {
       </div>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-4">
         {[
           { label: 'Tasks Completed', value: tasksCompleted, color: 'text-primary', bg: 'bg-primary/10' },
           { label: 'Total XP Earned', value: totalXP.toLocaleString(), color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
@@ -153,7 +153,7 @@ export default function Progress() {
             transition={{ delay: idx * 0.1 }}
             whileHover={{ y: -8, scale: 1.02 }}
             key={label} 
-            className="glass-panel p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-primary/50 hover:shadow-[0_20px_40px_rgba(16,185,129,0.15)] hover:bg-primary/5 transition-all duration-300 group"
+            className="glass-panel p-4 flex flex-col items-center justify-center text-center cursor-pointer hover:border-primary/50 hover:shadow-[0_20px_40px_rgba(16,185,129,0.15)] hover:bg-primary/5 transition-all duration-300 group"
           >
             <div className={`text-4xl font-black font-sans mb-2 ${color}`}>{value}</div>
             <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{label}</div>
@@ -162,9 +162,9 @@ export default function Progress() {
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-4">
         {/* Area Chart */}
-        <div className="glass-panel p-6">
+        <div className="glass-panel p-4">
           <div className="mb-6 flex justify-between items-end">
             <div>
               <h3 className="text-lg font-bold text-foreground">Learning Velocity</h3>
@@ -195,7 +195,7 @@ export default function Progress() {
         </div>
 
         {/* Pie Chart */}
-        <div className="glass-panel p-6 flex flex-col">
+        <div className="glass-panel p-4 flex flex-col">
           <div className="mb-4">
             <h3 className="text-lg font-bold text-foreground">Skill Mastery</h3>
             <p className="text-xs text-muted-foreground font-medium">Curriculum distribution</p>
@@ -236,7 +236,7 @@ export default function Progress() {
       </div>
 
       {/* Milestone Timeline */}
-      <div className="glass-panel p-6 border-primary/20 bg-gradient-to-br from-background to-primary/5">
+      <div className="glass-panel p-4 border-primary/20 bg-gradient-to-br from-background to-primary/5">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
             <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
@@ -259,7 +259,7 @@ export default function Progress() {
               <motion.div 
                 whileHover={{ scale: 1.01 }}
                 key={m.id} 
-                className={`flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 p-5 rounded-2xl border transition-all ${
+                className={`flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-4 p-5 rounded-2xl border transition-all ${
                   isClaimed ? 'bg-emerald-500/5 border-emerald-500/20' : 
                   isReady ? 'bg-primary/10 border-primary/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 
                   'bg-muted/30 border-border/50 opacity-60 grayscale-[50%]'

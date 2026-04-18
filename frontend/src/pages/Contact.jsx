@@ -49,13 +49,13 @@ export default function Contact() {
           </p>
         </motion.div>
 
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start justify-center">
+        <div className="flex flex-col lg:flex-row gap-5 lg:gap-12 items-start justify-center">
           
           {/* Contact Form Card */}
           <motion.div 
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex-1 w-full max-w-2xl mx-auto glass-panel p-8 md:p-12 relative overflow-hidden"
+            className="flex-1 w-full max-w-2xl mx-auto glass-panel p-5 md:p-12 relative overflow-hidden"
           >
             {/* Subtle glow inside card */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
@@ -73,8 +73,8 @@ export default function Contact() {
                 <p className="text-primary font-medium text-lg">We'll get back to you within 24 hours.</p>
               </motion.div>
             ) : (
-              <form onSubmit={handleSubmit} className="relative z-10 flex flex-col gap-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form onSubmit={handleSubmit} className="relative z-10 flex flex-col gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-foreground tracking-widest uppercase ml-1 block">Your Name</label>
                     <input 

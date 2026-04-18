@@ -332,7 +332,7 @@ export default function RoadmapViewer() {
                 exit={{ opacity: 0 }}
                 className="h-full overflow-y-auto no-scrollbar relative"
               >
-                <div className="absolute top-8 left-8 z-10 pointer-events-none">
+                <div className="absolute top-5 left-8 z-10 pointer-events-none">
                   <h3 className="text-5xl font-black text-primary/5 tracking-tighter">SKILL PATH</h3>
                 </div>
                 <ZigZagRoadmap weeks={weeks} onSelect={(w) => setSelected(w)} />
@@ -351,7 +351,7 @@ export default function RoadmapViewer() {
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
               className="absolute md:static top-0 right-0 w-full md:w-[400px] h-full bg-background/95 md:bg-card border-l border-border shadow-2xl overflow-y-auto no-scrollbar z-50 flex flex-col"
             >
-              <div className="p-6 sticky top-0 bg-background/95 md:bg-card z-10 border-b border-border/50 backdrop-blur-md flex justify-between items-start">
+              <div className="p-4 sticky top-0 bg-background/95 md:bg-card z-10 border-b border-border/50 backdrop-blur-md flex justify-between items-start">
                 <div>
                   <span className="text-[10px] uppercase font-black tracking-widest text-primary mb-1 block">Week {selected.weekNumber}</span>
                   <h2 className="text-lg font-bold text-foreground leading-tight">{selected.topic}</h2>
@@ -365,7 +365,7 @@ export default function RoadmapViewer() {
                 </button>
               </div>
 
-              <div className="p-6 space-y-8 flex-1">
+              <div className="p-4 space-y-5 flex-1">
                 <p className="text-sm text-foreground/80 font-medium leading-relaxed">{selected.description}</p>
 
                 {/* Skills */}
@@ -478,10 +478,10 @@ export default function RoadmapViewer() {
                 exit={{ scale: 0.95, y: 20 }}
                 className="w-full max-w-4xl max-h-full flex flex-col bg-card border border-border shadow-2xl rounded-3xl overflow-hidden relative"
               >
-                <div className="p-6 md:p-8 flex-1 overflow-y-auto no-scrollbar">
+                <div className="p-4 md:p-5 flex-1 overflow-y-auto no-scrollbar">
                   <button
                     onClick={() => setSelectedDay(null)}
-                    className="absolute top-6 right-6 w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center hover:bg-foreground hover:text-background transition-colors z-10 shadow-sm"
+                    className="absolute top-4 right-6 w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center hover:bg-foreground hover:text-background transition-colors z-10 shadow-sm"
                   >
                     <X size={20} />
                   </button>
@@ -490,7 +490,7 @@ export default function RoadmapViewer() {
                   <h2 className="text-3xl font-extrabold text-foreground mb-1 tracking-tight pr-12">{selectedDay.topic}</h2>
                   <h3 className="text-lg font-bold text-muted-foreground mb-8 pr-12">{selectedDay.subtopic}</h3>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5">
                     <div className="space-y-6 text-foreground/80 font-medium leading-relaxed">
                       <p>{selectedDay.description}</p>
                     </div>

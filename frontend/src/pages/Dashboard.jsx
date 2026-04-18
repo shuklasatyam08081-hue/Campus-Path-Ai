@@ -16,7 +16,7 @@ import { twMerge } from 'tailwind-merge';
 // Skeleton for loading state
 function DashboardSkeleton() {
   return (
-    <div className="animate-pulse space-y-8 pb-12">
+    <div className="animate-pulse space-y-5 pb-4">
       <div className="flex justify-between items-center">
         <div className="h-8 w-64 bg-muted rounded-lg" />
         <div className="flex gap-2">
@@ -27,7 +27,7 @@ function DashboardSkeleton() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-muted rounded-xl" />)}
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr] gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr] gap-4">
         <div className="h-[280px] bg-muted rounded-xl" />
         <div className="h-[280px] bg-muted rounded-xl" />
       </div>
@@ -104,7 +104,7 @@ export default function Dashboard() {
       ?.tasks?.find(t => !t.completed)?.text || MISSIONS[missionIdx]
     : MISSIONS[missionIdx];
 
-  const activeWeek = activeRoadmap && Array.isArray(activeRoadmap.weeks) 
+  const activeWeek = activeRoadmap && Array.isArray(activeRoadmap.weeks)
     ? activeRoadmap.weeks.find(w => Array.isArray(w.tasks) && w.tasks.some(t => !t.completed))
     : null;
 
@@ -156,7 +156,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="animate-in fade-in duration-500 space-y-8 pb-12">
+    <div className="animate-in fade-in duration-500 space-y-5 pb-4">
 
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -223,9 +223,9 @@ export default function Dashboard() {
       </div>
 
       {/* Row 2: Gauge & Radar */}
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr] gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr] gap-4">
         {/* Career Readiness Gauge */}
-        <div className="bg-card border border-border rounded-xl p-6 shadow-sm flex flex-col items-center justify-center min-h-[280px]">
+        <div className="bg-card border border-border rounded-xl p-4 shadow-sm flex flex-col items-center justify-center min-h-[280px]">
           <div className="w-full mb-6">
             <h3 className="font-bold text-foreground text-base mb-1">Career Readiness</h3>
             <p className="text-[11px] text-muted-foreground">
@@ -247,7 +247,7 @@ export default function Dashboard() {
             </svg>
           </div>
 
-          <div className="flex gap-6 w-full justify-center">
+          <div className="flex gap-4 w-full justify-center">
             <div className="text-center">
               <div className="text-lg font-bold text-foreground">{tasksDone}</div>
               <div className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Done</div>
@@ -260,7 +260,7 @@ export default function Dashboard() {
         </div>
 
         {/* Skill Radar */}
-        <div className="bg-card border border-border rounded-xl p-6 shadow-sm flex flex-col min-h-[280px]">
+        <div className="bg-card border border-border rounded-xl p-4 shadow-sm flex flex-col min-h-[280px]">
           <h3 className="font-bold text-foreground text-base mb-1">Technical Profile</h3>
           <p className="text-[11px] text-muted-foreground mb-4">
             Skill indexing vs Industry Benchmarks
@@ -300,18 +300,18 @@ export default function Dashboard() {
       </div>
 
       {/* Row 3: Heatmap + Mission */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-4">
 
         {/* Heatmap Area */}
-        <div className="bg-card border border-border rounded-xl p-6 shadow-sm overflow-hidden min-h-[220px] flex flex-col justify-center">
+        <div className="bg-card border border-border rounded-xl p-4 shadow-sm overflow-hidden min-h-[220px] flex flex-col justify-center">
           <h3 className="font-bold text-foreground text-sm mb-1 uppercase tracking-wider text-muted-foreground">Contribution DNA</h3>
-          <div className="mt-4 overflow-x-auto no-scrollbar">
+          <div className="-ml-3 mt-4 overflow-x-auto no-scrollbar">
             <ContributionHeatmap username={user?.githubUsername || 'Shubham-k-yadav'} />
           </div>
         </div>
 
         {/* Mission Card */}
-        <div className="bg-card border border-border rounded-xl p-6 shadow-sm relative overflow-hidden flex flex-col">
+        <div className="bg-card border border-border rounded-xl p-4 shadow-sm relative overflow-hidden flex flex-col">
           <div className="flex items-center gap-3 mb-6 relative z-10">
             <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center border border-primary/20 shadow-sm">
               <Brain size={20} />
@@ -337,14 +337,14 @@ export default function Dashboard() {
 
           <div className="mt-auto pt-4 border-t border-border flex gap-2">
             <button onClick={() => navigate('/roadmap')} className="w-full py-2 bg-primary text-primary-foreground font-bold rounded-lg flex items-center justify-center gap-2 text-xs hover:opacity-90 transition-all shadow-sm">
-               Visit Track
+              Visit Track
             </button>
           </div>
         </div>
       </div>
 
       {/* Roadmap DNA Grid */}
-      <div className="bg-card border border-border rounded-xl p-6 shadow-sm relative overflow-hidden">
+      <div className="bg-card border border-border rounded-xl p-4 shadow-sm relative overflow-hidden">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -406,8 +406,8 @@ export default function Dashboard() {
                         <div className={clsx("h-full rounded-full transition-all duration-1000", status === 'done' ? 'bg-primary' : 'bg-blue-500')} style={{ width: `${progress}%` }} />
                       </div>
                       <div className="flex justify-between text-[8px] font-black text-muted-foreground uppercase tracking-wider">
-                         <span>{progress}%</span>
-                         <span>{completed}/{taskCount} Done</span>
+                        <span>{progress}%</span>
+                        <span>{completed}/{taskCount} Done</span>
                       </div>
                     </div>
                   </motion.div>
@@ -426,7 +426,7 @@ export default function Dashboard() {
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -5 }}
-                    className="grid grid-cols-1 md:grid-cols-[1fr_250px] gap-6 bg-muted border border-border rounded-xl p-5 mt-4 overflow-hidden shadow-inner"
+                    className="grid grid-cols-1 md:grid-cols-[1fr_250px] gap-4 bg-muted border border-border rounded-xl p-5 mt-4 overflow-hidden shadow-inner"
                   >
                     {/* Tasks List */}
                     <div>
@@ -463,8 +463,8 @@ export default function Dashboard() {
 
                       {week.projectBrief && (
                         <div className="bg-primary/5 border border-primary/10 rounded-lg p-4">
-                           <h4 className="text-[9px] font-black text-primary uppercase tracking-widest mb-2">Technical Brief</h4>
-                           <p className="text-[11px] text-foreground leading-relaxed opacity-90">{week.projectBrief}</p>
+                          <h4 className="text-[9px] font-black text-primary uppercase tracking-widest mb-2">Technical Brief</h4>
+                          <p className="text-[11px] text-foreground leading-relaxed opacity-90">{week.projectBrief}</p>
                         </div>
                       )}
                     </div>
@@ -480,10 +480,10 @@ export default function Dashboard() {
             </div>
             <h3 className="text-base font-bold text-foreground mb-1">Roadmap Inactive</h3>
             <p className="text-xs text-muted-foreground mb-6 max-w-xs mx-auto">
-               Generate a personalized AI curriculum to begin your engineering journey.
+              Generate a personalized AI curriculum to begin your engineering journey.
             </p>
             <button onClick={generateRoadmap} className="px-5 py-2 bg-primary text-primary-foreground text-xs font-bold rounded-lg shadow-sm hover:opacity-90">
-               Deploy AI Pilot
+              Deploy AI Pilot
             </button>
           </div>
         )}

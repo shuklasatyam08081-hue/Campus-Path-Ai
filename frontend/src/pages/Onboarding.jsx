@@ -109,7 +109,7 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-8 relative bg-background overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-5 relative bg-background overflow-hidden">
       {/* GitHub Themed Background Detail */}
       <div className="pointer-events-none absolute inset-0 z-0 opacity-40">
         <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[100px]" />
@@ -167,7 +167,7 @@ export default function Onboarding() {
         </div>
 
         {/* Main Content Container */}
-        <div className="bg-card border border-border p-6 sm:p-10 rounded-xl shadow-sm relative overflow-hidden backdrop-blur-sm">
+        <div className="bg-card border border-border p-4 sm:p-10 rounded-xl shadow-sm relative overflow-hidden backdrop-blur-sm">
           <AnimatePresence mode="wait">
             <motion.div
               key={step}
@@ -178,7 +178,7 @@ export default function Onboarding() {
             >
               {/* Step 1: Target Role */}
               {step === 1 && (
-                <div className="flex flex-col lg:flex-row gap-8">
+                <div className="flex flex-col lg:flex-row gap-5">
                   {/* Left Column (Options Grid) */}
                   <div className="flex-1 lg:max-h-[45vh] overflow-y-auto no-scrollbar pr-0 lg:pr-4">
                     <div className="sticky top-0 z-10 pb-4 bg-card">

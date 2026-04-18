@@ -28,7 +28,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-background relative flex items-center justify-center p-6 overflow-hidden py-12">
+    <div className="min-h-screen bg-background relative flex items-center justify-center p-4 overflow-hidden py-12">
       {/* Background Decorative Elements */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary/20 rounded-full blur-[150px]" />
@@ -59,7 +59,7 @@ export default function Register() {
         </div>
 
         {/* Register Card */}
-        <div className="glass-panel p-8 md:p-10 relative overflow-hidden">
+        <div className="glass-panel p-5 md:p-10 relative overflow-hidden">
           {/* Subtle glow border */}
           <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent opacity-50 pointer-events-none" />
 

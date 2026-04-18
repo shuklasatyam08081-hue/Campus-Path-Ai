@@ -66,11 +66,11 @@ export default function About() {
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
-          className="glass-panel p-8 md:p-16 mb-24 relative overflow-hidden group"
+          className="glass-panel p-5 md:p-16 mb-24 relative overflow-hidden group"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
           
-          <div className="relative z-10 flex flex-col md:flex-row gap-8 md:gap-12 items-center md:items-start text-center md:text-left">
+          <div className="relative z-10 flex flex-col md:flex-row gap-5 md:gap-12 items-center md:items-start text-center md:text-left">
             <div className="w-20 h-20 bg-primary text-primary-foreground rounded-2xl flex items-center justify-center shrink-0 shadow-xl shadow-primary/20 group-hover:scale-110 transition-transform duration-500">
               <Target size={40} />
             </div>
@@ -133,7 +133,7 @@ export default function About() {
             </h2>
           </motion.div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {TEAM.map(({ name, role, bio, avatar, gradient, shadow }, idx) => (
               <motion.div 
                 initial={{ opacity: 0, y: 30 }}
@@ -142,7 +142,7 @@ export default function About() {
                 transition={{ delay: idx * 0.1, duration: 0.5 }}
                 whileHover={{ y: -12, scale: 1.03, transition: { type: 'spring', stiffness: 300 } }}
                 key={name} 
-                className="glass-panel p-8 flex flex-col items-center text-center group cursor-pointer hover:border-primary/50 hover:shadow-[0_20px_40px_rgba(16,185,129,0.2)] hover:bg-primary/5 transition-all duration-300"
+                className="glass-panel p-5 flex flex-col items-center text-center group cursor-pointer hover:border-primary/50 hover:shadow-[0_20px_40px_rgba(16,185,129,0.2)] hover:bg-primary/5 transition-all duration-300"
               >
                 <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${gradient} shadow-xl ${shadow} flex items-center justify-center text-white font-black text-3xl mb-6 group-hover:scale-110 transition-transform duration-500`}>
                   {avatar}

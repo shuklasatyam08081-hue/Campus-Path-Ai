@@ -85,7 +85,7 @@ export default function Projects() {
   );
 
   return (
-    <div className="pb-12 animate-in fade-in duration-300">
+    <div className="pb-4 animate-in fade-in duration-300">
       <div className="flex justify-between items-start mb-8 flex-wrap gap-4 border-b border-border pb-6">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Project Forge</h1>
@@ -112,7 +112,7 @@ export default function Projects() {
           { label: 'Completed', value: projects.filter(p => p.status === 'Completed').length, color: 'text-emerald-500' },
           { label: 'Upcoming', value: projects.filter(p => p.status === 'Upcoming').length, color: 'text-sky-500' },
         ].map(({ label, value, color }) => (
-          <div key={label} className="bg-card border border-border rounded-xl p-6 text-center shadow-sm">
+          <div key={label} className="bg-card border border-border rounded-xl p-4 text-center shadow-sm">
             <div className={`text-3xl font-black ${color} mb-1`}>{value}</div>
             <div className="text-muted-foreground text-xs uppercase tracking-wider font-bold">{label}</div>
           </div>
@@ -120,11 +120,11 @@ export default function Projects() {
       </div>
 
       {/* Project Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map(project => {
           const { badge, bar } = STATUS_STYLES[project.status];
           return (
-            <div key={project.id} className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col group">
+            <div key={project.id} className="bg-card border border-border rounded-xl p-4 shadow-sm hover:shadow-md transition-all flex flex-col group">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-2">
