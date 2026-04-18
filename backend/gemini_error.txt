@@ -1,0 +1,7 @@
+Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+    at handleResponseNotOk (C:\Users\shubh\OneDrive\Desktop\New folder (2)\backend\node_modules\@google\generative-ai\dist\index.js:434:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (C:\Users\shubh\OneDrive\Desktop\New folder (2)\backend\node_modules\@google\generative-ai\dist\index.js:403:9)
+    at async generateContent (C:\Users\shubh\OneDrive\Desktop\New folder (2)\backend\node_modules\@google\generative-ai\dist\index.js:867:22)
+    at async generateRoadmap (C:\Users\shubh\OneDrive\Desktop\New folder (2)\backend\src\services\geminiService.js:81:20)
+    at async generateRoadmapController (C:\Users\shubh\OneDrive\Desktop\New folder (2)\backend\src\controllers\roadmapController.js:26:23)

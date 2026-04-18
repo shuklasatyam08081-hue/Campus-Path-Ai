@@ -1,0 +1,6 @@
+Error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.
+    at APIError.generate (C:\Users\shubh\OneDrive\Desktop\New folder (2)\backend\node_modules\openai\core\error.js:63:20)
+    at OpenAI.makeStatusError (C:\Users\shubh\OneDrive\Desktop\New folder (2)\backend\node_modules\openai\client.js:211:32)
+    at OpenAI.makeRequest (C:\Users\shubh\OneDrive\Desktop\New folder (2)\backend\node_modules\openai\client.js:397:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Object.generateRoadmap (C:\Users\shubh\OneDrive\Desktop\New folder (2)\backend\src\services\openaiService.js:51:22)
