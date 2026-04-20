@@ -3,9 +3,9 @@
 @theme {
   --color-card: #ffffff;
   --color-ring: #2da44e;
-  --color-input: #f6f8fa;
-  --color-muted: #f6f8fa;
-  --color-accent: #f6f8fa;
+  --color-input: #eaeef2;
+  --color-muted: #eaeef2;
+  --color-accent: #eaeef2;
   --color-border: #d0d7de;
   --color-chart-1: #0969da;
   --color-chart-2: #2da44e;
@@ -14,11 +14,11 @@
   --color-chart-5: #10b981;
   --color-popover: #ffffff;
   --color-primary: #0969da;
-  --color-sidebar: #f6f8fa;
+  --color-sidebar: #eaeef2;
   --color-font-mono: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
   --color-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-  --color-secondary: #f6f8fa;
-  --color-background: #ffffff;
+  --color-secondary: #eaeef2;
+  --color-background: #f6f8fa;
   --color-foreground: #1f2328;
   --color-destructive: #cf222e;
   --color-sidebar-ring: #0969da;
