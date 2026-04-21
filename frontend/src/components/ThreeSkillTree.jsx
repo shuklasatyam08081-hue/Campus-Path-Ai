@@ -194,3 +194,4 @@ export default function ThreeSkillTree({ roadmap, activeWeek, onSelectWeek }) {
     </div>
   );
 }
+}

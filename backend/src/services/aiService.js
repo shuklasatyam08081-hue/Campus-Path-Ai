@@ -78,3 +78,4 @@ const conductMockInterview = async ({ roadmapContext, messages, targetRole }) =>
 };
 
 module.exports = { analyzeResume, conductMockInterview };
+module.exports = { analyzeResume, conductMockInterview };

@@ -74,3 +74,4 @@ const reviewRepository = async (username, repoName) => {
 };
 
 module.exports = { reviewRepository };
+module.exports = { reviewRepository };
