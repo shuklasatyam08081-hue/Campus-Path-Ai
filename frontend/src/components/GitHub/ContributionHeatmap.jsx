@@ -278,4 +278,5 @@ export default function ContributionHeatmap({ username = GITHUB_USERNAME }) {
     </motion.div>
   );
 }
+}
 

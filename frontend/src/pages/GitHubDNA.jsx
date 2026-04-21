@@ -243,5 +243,6 @@ export default function GitHubDNA() {
     </div>
   );
 }
+}
 
 
