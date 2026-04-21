@@ -42,106 +42,202 @@ export default function Community() {
   };
 
   return (
-    <div style={{ paddingBottom: '3rem' }}>
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.75rem', fontWeight: 700, color: '#f8fafc' }}>Community Hub</h1>
-        <p style={{ color: '#64748b', fontSize: '0.875rem' }}>Learn together, grow faster. 50K+ developers on the journey.</p>
+    <div className="pb-16 max-w-7xl mx-auto px-4 sm:px-6 animation-fade-in relative">
+      {/* Background Decorative Element */}
+      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+      
+      <div className="mb-10 text-center md:text-left">
+        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-4">
+          <span className="text-gradient">Community Hub</span>
+        </h1>
+        <p className="text-slate-400 text-lg max-w-2xl">Learn together, grow faster. Join 50K+ developers engineering their future.</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '1.5rem', alignItems: 'start' }}>
-        {/* Feed */}
-        <div>
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8 items-start">
+        {/* Feed Section */}
+        <div className="space-y-6">
           {/* Post Composer */}
-          <div className="stat-card" style={{ marginBottom: '1.25rem' }}>
-            <textarea className="input-field" rows={3} value={newPost} onChange={e => setNewPost(e.target.value)}
-              placeholder="Share a tip, resource, or win with the community..."
-              style={{ resize: 'none', marginBottom: '0.75rem' }} />
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button className="btn-primary" onClick={submitPost} style={{ fontSize: '0.85rem' }}>
-                <Send size={14} /> Post
-              </button>
+          <div className="glass-panel p-6 shadow-xl relative overflow-hidden group">
+            <div className="absolute inset-0 bg-primary/5 opacity-0 group-focus-within:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative z-10">
+              <div className="flex gap-4 mb-4">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary border border-primary/30">
+                  Y
+                </div>
+                <textarea 
+                  className="flex-1 bg-transparent border-none text-slate-200 placeholder-slate-500 focus:ring-0 text-lg resize-none min-h-[100px] custom-scrollbar"
+                  value={newPost} 
+                  onChange={e => setNewPost(e.target.value)}
+                  placeholder="Share a tip, resource, or win with the community..."
+                />
+              </div>
+              <div className="flex items-center justify-between pt-4 border-t border-border/50">
+                <div className="flex gap-2">
+                  <span className="badge-purple px-3 py-1 rounded-full text-xs font-semibold cursor-pointer hover:bg-purple-500/20 transition-colors">#Resource</span>
+                  <span className="badge-cyan px-3 py-1 rounded-full text-xs font-semibold cursor-pointer hover:bg-cyan-500/20 transition-colors">#Tip</span>
+                </div>
+                <button 
+                  className="btn-primary py-2 px-6 flex items-center gap-2 text-sm font-bold shadow-lg hover:shadow-primary/20 transition-all active:scale-95" 
+                  onClick={submitPost}
+                >
+                  <Send size={16} /> Post
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Posts */}
-          {posts.map(post => (
-            <div key={post.id} className="stat-card" style={{ marginBottom: '1rem' }}>
-              <div style={{ display: 'flex', gap: '0.875rem' }}>
-                <div style={{ width: 40, height: 40, borderRadius: '50%', background: `linear-gradient(135deg, ${post.color}, ${post.color}99)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.875rem', color: 'white', flexShrink: 0 }}>
-                  {post.avatar}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <span style={{ fontWeight: 700, fontSize: '0.875rem', color: '#f8fafc' }}>{post.author}</span>
-                      <span className={`badge ${TAG_COLORS[post.tag] || 'badge-purple'}`} style={{ fontSize: '0.65rem' }}>{post.tag}</span>
+          {/* Posts Feed */}
+          <div className="space-y-4">
+            {posts.map((post, index) => (
+              <div 
+                key={post.id} 
+                className="glass-panel p-6 hover:border-primary/30 transition-all duration-300 group animate-in fade-in slide-in-from-bottom-4"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="flex gap-5">
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-white shadow-lg relative overflow-hidden"
+                         style={{ background: `linear-gradient(135deg, ${post.color}, ${post.color}CC)` }}>
+                      <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      <span className="relative z-10">{post.avatar}</span>
                     </div>
-                    <span style={{ fontSize: '0.75rem', color: '#475569' }}>{post.time}</span>
                   </div>
-                  <p style={{ color: '#94a3b8', fontSize: '0.875rem', lineHeight: 1.7, marginBottom: '1rem' }}>{post.content}</p>
-                  <div style={{ display: 'flex', gap: '1rem' }}>
-                    <button onClick={() => toggleUpvote(post.id)} style={{
-                      display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'none', border: 'none',
-                      color: upvoted[post.id] ? 'var(--primary)' : '#64748b', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600,
-                      transition: 'color 0.2s',
-                    }}>
-                      <ThumbsUp size={14} fill={upvoted[post.id] ? 'var(--primary)' : 'none'} /> {post.upvotes}
-                    </button>
-                    <button style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '0.8rem' }}>
-                      <MessageSquare size={14} /> {post.comments}
-                    </button>
-                    <button onClick={() => toast.success('Link copied!')} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '0.8rem' }}>
-                      <Share2 size={14} /> Share
-                    </button>
+                  
+                  <div className="flex-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
+                      <div className="flex items-center gap-3">
+                        <span className="font-bold text-white text-lg">{post.author}</span>
+                        <span className={`badge ${TAG_COLORS[post.tag] || 'badge-purple'} text-[10px] uppercase tracking-wider px-2 py-0.5 rounded`}>
+                          {post.tag}
+                        </span>
+                      </div>
+                      <span className="text-xs text-slate-500 font-medium">{post.time}</span>
+                    </div>
+                    
+                    <p className="text-slate-300 leading-relaxed mb-6 text-[15px]">
+                      {post.content}
+                    </p>
+                    
+                    <div className="flex items-center gap-6 pt-4 border-t border-border/30">
+                      <button 
+                        onClick={() => toggleUpvote(post.id)} 
+                        className={`group/btn flex items-center gap-2 text-sm font-semibold transition-all transition-colors
+                                   ${upvoted[post.id] ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}
+                      >
+                        <div className={`p-1.5 rounded-lg transition-colors ${upvoted[post.id] ? 'bg-primary/20' : 'group-hover/btn:bg-primary/10'}`}>
+                          <ThumbsUp size={16} fill={upvoted[post.id] ? 'currentColor' : 'none'} />
+                        </div>
+                        {post.upvotes}
+                      </button>
+                      
+                      <button className="group/btn flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-blue-400 transition-colors">
+                        <div className="p-1.5 rounded-lg group-hover/btn:bg-blue-400/10 transition-colors">
+                          <MessageSquare size={16} />
+                        </div>
+                        {post.comments}
+                      </button>
+                      
+                      <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText(window.location.href);
+                          toast.success('Link copied to clipboard!');
+                        }}
+                        className="group/btn flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-emerald-400 transition-colors"
+                      >
+                        <div className="p-1.5 rounded-lg group-hover/btn:bg-emerald-400/10 transition-colors">
+                          <Share2 size={16} />
+                        </div>
+                        Share
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        {/* Sidebar: Leaderboard */}
-        <div>
-          <div className="stat-card">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
-              <TrendingUp size={18} color="#f59e0b" />
-              <h3 style={{ fontWeight: 700, color: '#f8fafc', fontSize: '1rem' }}>Weekly Leaderboard</h3>
+        {/* Sidebar Section */}
+        <aside className="space-y-6 sticky top-24">
+          <div className="glass-panel p-6 shadow-xl border-primary/10">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-amber-500/10 rounded-xl border border-amber-500/20">
+                <TrendingUp size={22} className="text-amber-500" />
+              </div>
+              <h3 className="font-bold text-white text-xl tracking-tight">Weekly Leaders</h3>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            
+            <div className="space-y-3">
               {LEADERBOARD.map(({ rank, name, role, readiness, streak, avatar, color, isYou }) => (
-                <div key={rank} style={{
-                  display: 'flex', alignItems: 'center', gap: '0.875rem',
-                  padding: '0.75rem', borderRadius: '10px',
-                  background: isYou ? 'rgba(124,58,237,0.12)' : 'rgba(255,255,255,0.02)',
-                  border: isYou ? '1px solid rgba(124,58,237,0.3)' : '1px solid rgba(255,255,255,0.04)',
-                }}>
-                  <span style={{
-                    width: 24, fontFamily: "'Space Grotesk', sans-serif",
-                    fontWeight: 800, fontSize: '0.875rem',
-                    color: rank === 1 ? '#f59e0b' : rank === 2 ? '#94a3b8' : rank === 3 ? '#f97316' : '#475569',
-                    textAlign: 'center',
-                  }}>
-                    {rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`}
-                  </span>
-                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: `linear-gradient(135deg, ${color}, ${color}80)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 700, color: 'white', flexShrink: 0 }}>
+                <div 
+                  key={rank} 
+                  className={`flex items-center gap-4 p-3 rounded-2xl border transition-all duration-300
+                             ${isYou 
+                               ? 'bg-primary/10 border-primary/30 shadow-[0_0_15px_rgba(47,129,247,0.1)]' 
+                               : 'bg-muted/30 border-transparent hover:bg-muted/50 hover:border-border/50'}`}
+                >
+                  <div className="w-8 text-center flex-shrink-0">
+                    <span className="text-xl font-black">
+                      {rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : <span className="text-slate-600 text-sm font-bold">#{rank}</span>}
+                    </span>
+                  </div>
+                  
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white shadow-sm flex-shrink-0"
+                       style={{ background: `linear-gradient(135deg, ${color}, ${color}80)` }}>
                     {avatar}
                   </div>
-                  <div style={{ flex: 1, overflow: 'hidden' }}>
-                    <div style={{ fontWeight: 600, fontSize: '0.825rem', color: isYou ? 'var(--primary)' : '#f8fafc', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</div>
-                    <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{role}</div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className={`font-bold text-sm truncate ${isYou ? 'text-primary' : 'text-slate-200'}`}>
+                      {name} {isYou && <span className="text-[10px] bg-primary/20 px-1.5 py-0.5 rounded ml-1">YOU</span>}
+                    </div>
+                    <div className="text-[11px] text-slate-500 truncate font-medium">{role}</div>
                   </div>
-                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#10b981' }}>{readiness}%</div>
-                    <div style={{ fontSize: '0.65rem', color: '#f59e0b', display: 'flex', alignItems: 'center', gap: '0.2rem', justifyContent: 'flex-end' }}>
-                      <Flame size={9} /> {streak}d
+                  
+                  <div className="text-right">
+                    <div className="font-black text-sm text-emerald-500">{readiness}%</div>
+                    <div className="text-[10px] text-amber-500 flex items-center gap-1 justify-end font-bold">
+                      <Flame size={10} strokeWidth={3} /> {streak}d
                     </div>
                   </div>
                 </div>
               ))}
             </div>
+            
+            <button className="w-full mt-6 py-3 rounded-xl bg-slate-800/50 hover:bg-slate-800 text-slate-300 text-sm font-bold border border-slate-700/50 transition-all">
+              View All Rankings
+            </button>
           </div>
-        </div>
+          
+          {/* Community Stats/Ad card */}
+          <div className="glass-panel p-6 bg-gradient-to-br from-primary/10 to-transparent border-primary/10">
+            <h4 className="font-bold text-white mb-2">Build Together 🚀</h4>
+            <p className="text-xs text-slate-400 mb-4 leading-relaxed">
+              CampusPath communities are where real growth happens. Join a study room or start a project.
+            </p>
+            <button className="w-full btn-primary text-xs py-2.5 rounded-lg shadow-md">
+              Browse Study Rooms
+            </button>
+          </div>
+        </aside>
       </div>
+
+      {/* Global styles for generic animations used in redesign */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slide-in-from-bottom { 
+          from { opacity: 0; transform: translateY(1rem); } 
+          to { opacity: 1; transform: translateY(0); } 
+        }
+        @keyframes zoom-in { 
+          from { opacity: 0; transform: scale(0.95); } 
+          to { opacity: 1; transform: scale(1); } 
+        }
+        .animate-in { animation-duration: 0.5s; animation-fill-mode: both; animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+        .fade-in { animation-name: fade-in; }
+        .slide-in-from-bottom-4 { animation-name: slide-in-from-bottom; }
+        .zoom-in { animation-name: zoom-in; }
+      `}} />
     </div>
   );
 }
