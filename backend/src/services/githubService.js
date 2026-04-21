@@ -261,7 +261,9 @@ const getContributionHeatmap = async (username, year) => {
 
 const checkRepoExists = async (username, repoName) => {
   try {
-    const res = await axios.get(`${GITHUB_API}/repos/${username}/${repoName}`, { headers: getHeaders() });
+    const cleanUser = username?.trim();
+    const cleanRepo = repoName?.trim();
+    const res = await axios.get(`${GITHUB_API}/repos/${cleanUser}/${cleanRepo}`, { headers: getHeaders() });
     return res.status === 200;
   } catch (error) {
     return false;

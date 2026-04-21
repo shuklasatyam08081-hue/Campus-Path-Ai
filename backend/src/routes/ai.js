@@ -10,4 +10,3 @@ router.post('/score-resume', protect, upload.single('resume'), scoreResume);
 router.post('/interview', protect, handleInterviewChat);
 
 module.exports = router;
-module.exports = router;

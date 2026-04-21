@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Roadmap = require('../models/Roadmap');
 const { generateToken } = require('../services/authService');
 
 const register = async (req, res, next) => {
@@ -56,6 +57,12 @@ const updateProfile = async (req, res, next) => {
       if (req.body[field] !== undefined) updates[field] = req.body[field];
     }
     const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true });
+    
+    // Sync githubUsername to roadmaps if it was updated
+    if (updates.githubUsername !== undefined) {
+      await Roadmap.updateMany({ userId: req.user._id }, { githubUsername: updates.githubUsername });
+    }
+
     res.json({ success: true, user });
   } catch (error) {
     console.error('Profile Update Error:', error.message);

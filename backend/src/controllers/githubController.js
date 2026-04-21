@@ -40,11 +40,34 @@ const getHeatmap = async (req, res) => {
 };
 
 const handleReview = async (req, res) => {
-  const { username, repoName } = req.body;
-  if (!username || !repoName) return res.status(400).json({ success: false, message: 'Username and repoName required' });
+  const { username: manualUser, repoName: manualRepo, repoUrl } = req.body;
+  
+  let targetUser = manualUser;
+  let targetRepo = manualRepo;
+
+  // Handle URL parsing if provided
+  if (repoUrl) {
+    try {
+      // Regex to match github.com/owner/repo
+      const match = repoUrl.match(/(?:github\.com\/)([^\/]+)\/([^\/\.\?#]+)/);
+      if (match) {
+        targetUser = match[1];
+        targetRepo = match[2];
+      } else {
+        return res.status(400).json({ success: false, message: 'Invalid GitHub URL format.' });
+      }
+    } catch (e) {
+      return res.status(400).json({ success: false, message: 'Failed to parse repository URL.' });
+    }
+  }
+
+  if (!targetUser || !targetRepo) {
+    return res.status(400).json({ success: false, message: 'Please provide a valid GitHub URL or both Username and Repo Name.' });
+  }
   
   try {
-    const analysis = await reviewRepository(username, repoName);
+    console.log(`🔍 Processing review for: ${targetUser}/${targetRepo}...`);
+    const analysis = await reviewRepository(targetUser, targetRepo);
     res.json({ success: true, data: analysis });
   } catch (error) {
     console.error('GitHub review controller error:', error.message);
