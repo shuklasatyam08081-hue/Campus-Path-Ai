@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import ContributionHeatmap from '../components/GitHub/ContributionHeatmap';
 import { 
-  Github, Globe, Terminal, Info, AlertTriangle, Zap, Search, 
+  Github, Globe, Terminal, Info, AlertTriangle, Search, 
   RefreshCw, Shield, Zap as Fast, Layout, Activity, ChevronRight, CheckCircle2 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';

@@ -56,12 +56,11 @@ function buildRadarFromRoadmap(roadmap, knownSkills) {
   }));
 }
 
-const MISSIONS = [
-  'Complete the Docker fundamentals module and build a containerized app',
-  'Write 3 unit tests for your existing project using Jest',
-  'Set up a basic CI/CD pipeline using GitHub Actions',
-  'Read the official TypeScript handbook sections on generics',
-  'Deploy your portfolio to Vercel and share the link',
+const INSIGHTS = [
+  { text: 'Completing your Docker module will put you in the top 10% of junior candidates.', category: 'Market Value', icon: Zap },
+  { text: 'Focusing on Generics this week will solve 40% of your current TypeScript errors.', category: 'Skill Boost', icon: Brain },
+  { text: 'Senior roles in your area are increasingly requiring PostgreSQL expertise.', category: 'Career Trend', icon: Target },
+  { text: 'Your commit velocity is 20% higher than last week. Keep it up!', category: 'Momentum', icon: Flame },
 ];
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -74,7 +73,7 @@ export default function Dashboard() {
   const [roadmaps, setRoadmaps] = useState([]);
   const [generating, setGenerating] = useState(false);
   const [syncing, setSyncing] = useState(false);
-  const [missionIdx] = useState(() => Math.floor(Math.random() * MISSIONS.length));
+  const [missionIdx] = useState(() => Math.floor(Math.random() * INSIGHTS.length));
   const [expandedWeek, setExpandedWeek] = useState(null);
 
   useEffect(() => {
@@ -99,10 +98,7 @@ export default function Dashboard() {
     ? activeRoadmap.weeks.reduce((s, w) => s + (w.tasks || []).filter(t => !t.completed).length, 0)
     : 0;
 
-  const dailyMission = (activeRoadmap && Array.isArray(activeRoadmap.weeks))
-    ? activeRoadmap.weeks.find(w => Array.isArray(w.tasks) && w.tasks.some(t => !t.completed))
-      ?.tasks?.find(t => !t.completed)?.text || MISSIONS[missionIdx]
-    : MISSIONS[missionIdx];
+  const dailyInsight = INSIGHTS[missionIdx];
 
   const activeWeek = activeRoadmap && Array.isArray(activeRoadmap.weeks)
     ? activeRoadmap.weeks.find(w => Array.isArray(w.tasks) && w.tasks.some(t => !t.completed))
@@ -310,34 +306,45 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Mission Card */}
-        <div className="bg-card border border-border rounded-xl p-4 shadow-sm relative overflow-hidden flex flex-col">
-          <div className="flex items-center gap-3 mb-6 relative z-10">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center border border-primary/20 shadow-sm">
-              <Brain size={20} />
+        {/* AI Career Navigator */}
+        <div className="bg-card border border-border rounded-xl p-4 shadow-sm relative overflow-hidden flex flex-col group hover:border-primary/40 transition-all duration-300">
+          <div className="flex items-center justify-between mb-6 relative z-10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center border border-primary/20 shadow-sm group-hover:scale-110 transition-transform">
+                <Brain size={20} />
+              </div>
+              <div>
+                <h3 className="font-bold text-foreground text-sm">AI Navigator</h3>
+                <p className="text-[10px] font-bold text-primary tracking-widest uppercase">Career Guidance</p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-bold text-foreground text-sm">Target Mission</h3>
-              <p className="text-[10px] font-bold text-primary tracking-widest uppercase">Immediate Action</p>
-            </div>
+            <div className="px-2 py-1 bg-muted rounded text-[9px] font-black text-muted-foreground uppercase tracking-tighter">Live</div>
           </div>
 
-          <div className="bg-muted p-4 rounded-lg mb-4 border border-border relative z-10 flex-1">
-            <p className="text-[13px] font-medium text-foreground leading-relaxed">
-              {dailyMission}
+          <div className="bg-muted/50 p-4 rounded-lg mb-4 border border-border relative z-10 flex-1 hover:bg-muted transition-colors">
+            <div className="flex items-center gap-2 mb-2">
+              <dailyInsight.icon size={14} className="text-primary" />
+              <span className="text-[10px] font-bold text-primary uppercase tracking-wider">{dailyInsight.category}</span>
+            </div>
+            <p className="text-[13px] font-semibold text-foreground leading-relaxed">
+              {dailyInsight.text}
             </p>
           </div>
 
-          {activeWeek?.projectBrief && (
-            <div className="bg-blue-500/5 border border-blue-500/10 rounded-lg p-3 mb-4 relative z-10">
-              <p className="text-[10px] font-bold text-blue-500 uppercase tracking-wider mb-1 flex items-center gap-1.5"><Code size={14} /> Week Projection</p>
-              <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{activeWeek.projectBrief}</p>
+          <div className="grid grid-cols-2 gap-2 mb-4 relative z-10">
+            <div className="p-2 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
+              <p className="text-[9px] font-bold text-emerald-500 uppercase mb-0.5">Velocity</p>
+              <p className="text-xs font-bold text-foreground">+12% Up</p>
             </div>
-          )}
+            <div className="p-2 rounded-lg bg-blue-500/5 border border-blue-500/10">
+              <p className="text-[9px] font-bold text-blue-500 uppercase mb-0.5">Next Win</p>
+              <p className="text-xs font-bold text-foreground">3 Modules Left</p>
+            </div>
+          </div>
 
           <div className="mt-auto pt-4 border-t border-border flex gap-2">
-            <button onClick={() => navigate('/roadmap')} className="w-full py-2 bg-primary text-primary-foreground font-bold rounded-lg flex items-center justify-center gap-2 text-xs hover:opacity-90 transition-all shadow-sm">
-              Visit Track
+            <button onClick={() => navigate('/roadmap')} className="w-full py-2 bg-primary text-primary-foreground font-bold rounded-lg flex items-center justify-center gap-2 text-xs hover:opacity-90 transition-all shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95">
+              Refine My Path <ArrowRight size={14} />
             </button>
           </div>
         </div>

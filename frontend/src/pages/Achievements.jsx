@@ -125,14 +125,15 @@ export default function Achievements() {
                 padding: '1.75rem',
                 borderRadius: '16px',
                 background: badge.unlocked
-                  ? `linear-gradient(135deg, ${badge.color}15, ${badge.color}08)`
+                  ? `linear-gradient(135deg, ${badge.color}25, ${badge.color}15)`
                   : 'var(--bg-glass)',
                 cursor: badge.unlocked ? 'pointer' : 'default',
                 transition: 'all 0.3s ease',
                 position: 'relative',
                 overflow: 'hidden',
-                opacity: badge.unlocked ? 1 : 0.5,
-                boxShadow: badge.unlocked ? `0 0 20px ${badge.color}20` : 'none',
+                opacity: badge.unlocked ? 1 : 0.7,
+                boxShadow: badge.unlocked ? `0 0 20px ${badge.color}30` : 'none',
+                border: badge.unlocked ? `1px solid ${badge.color}40` : '1px solid var(--border)',
               }}
               onMouseEnter={e => badge.unlocked && (e.currentTarget.style.transform = 'translateY(-4px)', e.currentTarget.style.boxShadow = `0 8px 30px ${badge.color}30`)}
               onMouseLeave={e => badge.unlocked && (e.currentTarget.style.transform = 'translateY(0)', e.currentTarget.style.boxShadow = `0 0 20px ${badge.color}20`)}
@@ -153,9 +154,9 @@ export default function Achievements() {
                   {badge.unlocked ? <Icon size={24} color={badge.color} /> : <Lock size={20} color="var(--muted-foreground)" />}
                 </div>
                 <div style={{ fontWeight: 700, fontSize: '0.9rem', color: badge.unlocked ? 'var(--foreground)' : 'var(--muted-foreground)', marginBottom: '0.35rem' }}>{badge.name}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--primary)', lineHeight: 1.5, marginBottom: '0.75rem' }}>{badge.desc}</div>
-                <div style={{ fontSize: '0.75rem', color: badge.unlocked ? badge.color : 'var(--muted-foreground)', fontWeight: 700 }}>+{badge.xp} XP</div>
-                {badge.date && badge.unlocked && <div style={{ fontSize: '0.65rem', color: 'var(--muted-foreground)', marginTop: '0.25rem' }}>Unlocked: {badge.date}</div>}
+                <div style={{ fontSize: '0.75rem', color: badge.unlocked ? 'var(--primary)' : 'var(--muted-foreground)', fontWeight: 500, lineHeight: 1.5, marginBottom: '0.75rem' }}>{badge.desc}</div>
+                <div style={{ fontSize: '0.75rem', color: badge.unlocked ? badge.color : 'var(--muted-foreground)', fontWeight: 800 }}>+{badge.xp} XP</div>
+                {badge.date && badge.unlocked && <div style={{ fontSize: '0.65rem', color: 'var(--muted-foreground)', fontWeight: 600, marginTop: '0.25rem' }}>Unlocked: {badge.date}</div>}
               </div>
             </div>
           );
@@ -164,7 +165,13 @@ export default function Achievements() {
 
       {/* Selected Badge Actions */}
       {selectedBadge && (
-        <div className="stat-card" style={{ background: `linear-gradient(135deg, ${selectedBadge.color}12, rgba(13,13,40,0.8))`, border: `1px solid ${selectedBadge.color}30`, animation: 'fadeIn 0.3s ease-out' }}>
+        <div className="glass-panel" style={{ 
+          padding: '2rem',
+          background: `linear-gradient(135deg, ${selectedBadge.color}15, var(--card))`, 
+          border: `1px solid ${selectedBadge.color}40`, 
+          animation: 'fadeIn 0.3s ease-out',
+          boxShadow: `0 10px 40px ${selectedBadge.color}20`
+        }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
             <div style={{ width: 64, height: 64, borderRadius: '50%', background: `${selectedBadge.color}20`, border: `2px solid ${selectedBadge.color}50`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 0 25px ${selectedBadge.color}40` }}>
               <selectedBadge.icon size={28} color={selectedBadge.color} />

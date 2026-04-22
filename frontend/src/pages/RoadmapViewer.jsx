@@ -57,13 +57,9 @@ function ZigZagStep({ week, index, status, onSelect, side }) {
 
   return (
     <div className="relative flex justify-center items-center h-[200px] w-full max-w-4xl mx-auto z-10 group">
-
-      {/* Left side content slot */}
       <div className="absolute left-0 w-[calc(50%-4rem)] md:w-[calc(50%-6rem)] flex justify-end">
         {side === 'left' && cardContent}
       </div>
-
-      {/* Center Node */}
       <motion.div
         initial={{ scale: 0 }}
         whileInView={{ scale: 1 }}
@@ -78,8 +74,6 @@ function ZigZagStep({ week, index, status, onSelect, side }) {
       >
         {isDone ? <Check size={24} strokeWidth={4} /> : index + 1}
       </motion.div>
-
-      {/* Right side content slot */}
       <div className="absolute right-0 w-[calc(50%-4rem)] md:w-[calc(50%-6rem)] flex justify-start">
         {side === 'right' && cardContent}
       </div>
@@ -89,7 +83,6 @@ function ZigZagStep({ week, index, status, onSelect, side }) {
 
 function ZigZagRoadmap({ weeks, onSelect }) {
   if (!weeks || weeks.length === 0) return null;
-
   const stepHeight = 200;
   const topPadding = 100;
   const startY = topPadding + (stepHeight / 2);
@@ -97,7 +90,6 @@ function ZigZagRoadmap({ weeks, onSelect }) {
 
   return (
     <div className="relative w-full overflow-hidden no-scrollbar" style={{ height: totalHeight }}>
-      {/* Background SVG Path */}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"
         viewBox={`0 0 1000 ${totalHeight}`}
@@ -130,13 +122,11 @@ function ZigZagRoadmap({ weeks, onSelect }) {
           strokeLinecap="round"
         />
       </svg>
-
       <div className="relative w-full pt-[100px]">
         {weeks.map((week, index) => {
           const completedTasks = (week.tasks || []).filter(t => t.completed).length;
           const progress = week.tasks?.length > 0 ? (completedTasks / week.tasks.length) * 100 : 0;
           const status = progress === 100 ? 'done' : index === 0 || (weeks[index - 1] && (weeks[index - 1].tasks || []).filter(t => t.completed).length > 0) ? 'active' : 'upcoming';
-
           return (
             <ZigZagStep
               key={index}
@@ -164,7 +154,7 @@ export default function RoadmapViewer() {
   const [generating, setGenerating] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [selectedDay, setSelectedDay] = useState(null);
-  const [viewMode, setViewMode] = useState('list'); // 'list' or '3d'
+  const [viewMode, setViewMode] = useState('list');
 
   const fetchRoadmap = useCallback(async () => {
     setLoading(true);
@@ -203,27 +193,6 @@ export default function RoadmapViewer() {
     }
   };
 
-  if (loading) return <div className="flex items-center justify-center min-h-[60vh]"><RefreshCw className="animate-spin text-primary" size={32} /></div>;
-
-  if (weeks.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center max-w-lg mx-auto">
-        <div className="w-20 h-20 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6">
-          <Map size={40} className="text-primary" />
-        </div>
-        <h2 className="text-2xl font-bold text-foreground mb-3 font-sans tracking-tight">No Roadmap Yet</h2>
-        <p className="text-muted-foreground font-medium mb-8">Your personalized career path hasn't been mapped. Generate one now using AI.</p>
-        <button
-          className="px-6 py-3 bg-primary text-primary-foreground font-bold rounded-xl shadow-lg hover:scale-105 transition-transform flex items-center gap-2 disabled:opacity-70 disabled:hover:scale-100"
-          onClick={generateRoadmap}
-          disabled={generating}
-        >
-          {generating ? <><RefreshCw size={18} className="animate-spin" /> Generating...</> : <><Brain size={18} /> Generate AI Roadmap</>}
-        </button>
-      </div>
-    );
-  }
-
   const toggleTask = async (weekIndex, taskIndex) => {
     const newWeeks = weeks.map((w, wi) => wi !== weekIndex ? w : {
       ...w,
@@ -260,9 +229,145 @@ export default function RoadmapViewer() {
     }
   };
 
+  const getYouTubeEmbedUrl = (url) => {
+    if (!url) return null;
+    if (url.includes('youtube.com/embed/')) return url;
+    let videoId = '';
+    if (url.includes('youtu.be/')) {
+      videoId = url.split('youtu.be/')[1]?.split(/[?#]/)[0];
+    } else if (url.includes('watch?v=')) {
+      videoId = url.split('watch?v=')[1]?.split(/[&?#]/)[0];
+    } else if (url.includes('/results')) {
+      return null;
+    }
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+  };
+
+  const renderSingleDayModal = () => {
+    if (!selectedDay) return null;
+    const embedUrl = getYouTubeEmbedUrl(selectedDay.videoLink);
+
+    return (
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="absolute inset-0 z-[100] bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 lg:p-12"
+        >
+          <motion.div
+            initial={{ scale: 0.95, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.95, y: 20 }}
+            className="w-full max-w-4xl max-h-full flex flex-col bg-card border border-border shadow-2xl rounded-3xl overflow-hidden relative"
+          >
+            <div className="p-4 md:p-5 flex-1 overflow-y-auto no-scrollbar">
+              <button
+                onClick={() => setSelectedDay(null)}
+                className="absolute top-4 right-6 w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center hover:bg-foreground hover:text-background transition-colors z-10 shadow-sm"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="text-xs font-black tracking-widest text-primary uppercase mb-2">Day {selectedDay.dayNumber}</div>
+              <h2 className="text-3xl font-extrabold text-foreground mb-1 tracking-tight pr-12">{selectedDay.topic}</h2>
+              <h3 className="text-lg font-bold text-muted-foreground mb-8 pr-12">{selectedDay.subtopic}</h3>
+
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5">
+                <div className="space-y-6 text-foreground/80 font-medium leading-relaxed">
+                  <p>{selectedDay.description}</p>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="p-4 rounded-2xl bg-black border border-border shadow-inner">
+                    <h4 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-3">
+                      <Video size={14} /> Video Lesson
+                    </h4>
+                    
+                    {embedUrl ? (
+                      <div className="w-full aspect-video rounded-xl overflow-hidden bg-black/50 border border-white/10 mb-4">
+                        <iframe
+                          width="100%" height="100%"
+                          src={embedUrl}
+                          title="YouTube Lesson"
+                          className="border-none"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full aspect-video rounded-xl flex flex-col items-center justify-center bg-muted border border-border/20 mb-4 p-4 text-center">
+                        <Play size={32} className="text-muted-foreground/30 mb-2" />
+                        <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
+                          {selectedDay.videoLink?.includes('results') ? 'Search Required' : 'Manual View Recommended'}
+                        </p>
+                      </div>
+                    )}
+
+                    {selectedDay.videoLink ? (
+                      <a
+                        href={selectedDay.videoLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-full flex items-center justify-center gap-2 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-500 text-xs font-bold rounded-xl transition-all active:scale-95 group"
+                      >
+                        <ExternalLink size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                        Watch on YouTube
+                      </a>
+                    ) : (
+                      <div className="text-[10px] text-muted-foreground font-bold uppercase text-center py-2">No link available</div>
+                    )}
+                  </div>
+
+                  {selectedDay.docLink && (
+                    <a
+                      href={selectedDay.docLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center justify-between p-4 rounded-2xl bg-primary/5 hover:bg-primary/10 border border-primary/20 text-primary hover:text-primary/90 transition-colors group shadow-inner"
+                    >
+                      <div className="flex items-center gap-3">
+                        <BookOpen size={18} />
+                        <div>
+                          <div className="text-xs font-black uppercase tracking-widest leading-none mb-1">Official Guide</div>
+                          <div className="text-sm font-bold">Read Docs</div>
+                        </div>
+                      </div>
+                      <ExternalLink size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>
+    );
+  };
+
+  if (loading) return <div className="flex items-center justify-center min-h-[60vh]"><RefreshCw className="animate-spin text-primary" size={32} /></div>;
+
+  if (weeks.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center max-w-lg mx-auto">
+        <div className="w-20 h-20 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6">
+          <Map size={40} className="text-primary" />
+        </div>
+        <h2 className="text-2xl font-bold text-foreground mb-3 font-sans tracking-tight">No Roadmap Yet</h2>
+        <p className="text-muted-foreground font-medium mb-8">Your personalized career path hasn't been mapped. Generate one now using AI.</p>
+        <button
+          className="px-6 py-3 bg-primary text-primary-foreground font-bold rounded-xl shadow-lg hover:scale-105 transition-transform flex items-center gap-2 disabled:opacity-70 disabled:hover:scale-100"
+          onClick={generateRoadmap}
+          disabled={generating}
+        >
+          {generating ? <><RefreshCw size={18} className="animate-spin" /> Generating...</> : <><Brain size={18} /> Generate AI Roadmap</>}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="h-[calc(100vh-6rem)] flex flex-col gap-4">
-      {/* Header */}
       <div className="flex justify-between items-end flex-wrap gap-4 shrink-0">
         <div>
           <h1 className="text-3xl font-extrabold font-sans text-foreground mb-1">Learning Roadmap</h1>
@@ -270,41 +375,37 @@ export default function RoadmapViewer() {
             {user?.targetRole || 'Fullstack'} Engineer track · {weeks.length} weeks
           </p>
         </div>
-          {/* Legend & View Toggles */}
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex gap-4 items-center">
-              {[
-                { color: 'bg-emerald-500', label: 'Completed' },
-                { color: 'bg-primary', label: 'In Progress' },
-                { color: 'bg-muted-foreground', label: 'Upcoming' }
-              ].map(({ color, label }) => (
-                <div key={label} className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                  <div className={`w-2.5 h-2.5 rounded-full ${color}`} />
-                  {label}
-                </div>
-              ))}
-            </div>
-            
-            <div className="flex bg-muted border border-border rounded-xl p-1 shadow-inner h-fit">
-               <button 
-                 onClick={() => setViewMode('list')}
-                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'list' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-               >
-                 <Layout size={14} /> List
-               </button>
-               <button 
-                 onClick={() => setViewMode('3d')}
-                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === '3d' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-               >
-                 <RefreshCw size={14} /> 3D DNA
-               </button>
-            </div>
+        <div className="flex items-center gap-4">
+          <div className="hidden sm:flex gap-4 items-center">
+            {[
+              { color: 'bg-emerald-500', label: 'Completed' },
+              { color: 'bg-primary', label: 'In Progress' },
+              { color: 'bg-muted-foreground', label: 'Upcoming' }
+            ].map(({ color, label }) => (
+              <div key={label} className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                <div className={`w-2.5 h-2.5 rounded-full ${color}`} />
+                {label}
+              </div>
+            ))}
           </div>
+          <div className="flex bg-muted border border-border rounded-xl p-1 shadow-inner h-fit">
+            <button 
+              onClick={() => setViewMode('list')}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'list' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              <Layout size={14} /> List
+            </button>
+            <button 
+              onClick={() => setViewMode('3d')}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === '3d' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              <RefreshCw size={14} /> 3D DNA
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="flex-1 relative rounded-3xl border border-border bg-card/40 backdrop-blur-md overflow-hidden shadow-inner flex">
-
-        {/* Main Content Area */}
         <div className="flex-1 h-full relative">
           <AnimatePresence mode="wait">
             {viewMode === '3d' ? (
@@ -341,7 +442,6 @@ export default function RoadmapViewer() {
           </AnimatePresence>
         </div>
 
-        {/* Detail Sidebar / Drawer */}
         <AnimatePresence>
           {selected && (
             <motion.div
@@ -367,8 +467,6 @@ export default function RoadmapViewer() {
 
               <div className="p-4 space-y-5 flex-1">
                 <p className="text-sm text-foreground/80 font-medium leading-relaxed">{selected.description}</p>
-
-                {/* Skills */}
                 <div>
                   <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3">Skills Covered</h4>
                   <div className="flex flex-wrap gap-2">
@@ -380,7 +478,6 @@ export default function RoadmapViewer() {
                   </div>
                 </div>
 
-                {/* GitHub Challenge */}
                 {selected.expectedRepoName && (
                   <div className="p-5 rounded-2xl bg-primary/5 border border-primary/20 shadow-inner">
                     <div className="flex items-center gap-2 mb-3">
@@ -410,7 +507,6 @@ export default function RoadmapViewer() {
                   </div>
                 )}
 
-                {/* Tasks / Days */}
                 {selected.days && selected.days.length > 0 ? (
                   <div>
                     <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3">7-Day Learning Plan</h4>
@@ -463,83 +559,7 @@ export default function RoadmapViewer() {
           )}
         </AnimatePresence>
 
-        {/* Single Day Modal */}
-        <AnimatePresence>
-          {selectedDay && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 z-[100] bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 lg:p-12"
-            >
-              <motion.div
-                initial={{ scale: 0.95, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.95, y: 20 }}
-                className="w-full max-w-4xl max-h-full flex flex-col bg-card border border-border shadow-2xl rounded-3xl overflow-hidden relative"
-              >
-                <div className="p-4 md:p-5 flex-1 overflow-y-auto no-scrollbar">
-                  <button
-                    onClick={() => setSelectedDay(null)}
-                    className="absolute top-4 right-6 w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center hover:bg-foreground hover:text-background transition-colors z-10 shadow-sm"
-                  >
-                    <X size={20} />
-                  </button>
-
-                  <div className="text-xs font-black tracking-widest text-primary uppercase mb-2">Day {selectedDay.dayNumber}</div>
-                  <h2 className="text-3xl font-extrabold text-foreground mb-1 tracking-tight pr-12">{selectedDay.topic}</h2>
-                  <h3 className="text-lg font-bold text-muted-foreground mb-8 pr-12">{selectedDay.subtopic}</h3>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5">
-                    <div className="space-y-6 text-foreground/80 font-medium leading-relaxed">
-                      <p>{selectedDay.description}</p>
-                    </div>
-
-                    <div className="space-y-6">
-                      {selectedDay.videoLink ? (
-                        <div className="p-4 rounded-2xl bg-black border border-border shadow-inner">
-                          <h4 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-3"><Video size={14} /> Video Lesson</h4>
-                          <div className="w-full aspect-video rounded-xl overflow-hidden bg-black/50 border border-white/10">
-                            <iframe
-                              width="100%" height="100%"
-                              src={selectedDay.videoLink.includes('watch?v=') ? selectedDay.videoLink.replace('watch?v=', 'embed/') : selectedDay.videoLink}
-                              title="YouTube Lesson"
-                              className="border-none"
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                              allowFullScreen
-                            />
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="p-4 rounded-2xl bg-muted/30 border border-border text-xs font-medium text-muted-foreground text-center">
-                          No video available for this topic.
-                        </div>
-                      )}
-
-                      {selectedDay.docLink && (
-                        <a
-                          href={selectedDay.docLink}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex items-center justify-between p-4 rounded-2xl bg-primary/5 hover:bg-primary/10 border border-primary/20 text-primary hover:text-primary/90 transition-colors group shadow-inner"
-                        >
-                          <div className="flex items-center gap-3">
-                            <BookOpen size={18} />
-                            <div>
-                              <div className="text-xs font-black uppercase tracking-widest leading-none mb-1">Official Guide</div>
-                              <div className="text-sm font-bold">Read Docs</div>
-                            </div>
-                          </div>
-                          <ExternalLink size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {renderSingleDayModal()}
       </div>
     </div>
   );

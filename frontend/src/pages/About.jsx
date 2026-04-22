@@ -6,23 +6,23 @@ import { motion } from 'framer-motion';
 
 const TECH = [
   { name: 'React 18', color: 'text-primary', bg: 'bg-primary/10', border: 'border-primary/20', category: 'Frontend' },
-  { name: 'Vite', color: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'border-emerald-400/20', category: 'Frontend' },
-  { name: 'Tailwind CSS v4', color: 'text-teal-400', bg: 'bg-teal-400/10', border: 'border-teal-400/20', category: 'Frontend' },
-  { name: 'Framer Motion', color: 'text-green-400', bg: 'bg-green-400/10', border: 'border-green-400/20', category: 'Frontend' },
-  { name: 'Recharts', color: 'text-emerald-500', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', category: 'Frontend' },
-  { name: 'Node.js', color: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/20', category: 'Backend' },
+  { name: 'Vite', color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/20', category: 'Frontend' },
+  { name: 'Tailwind CSS v4', color: 'text-indigo-400', bg: 'bg-indigo-400/10', border: 'border-indigo-400/20', category: 'Frontend' },
+  { name: 'Framer Motion', color: 'text-sky-400', bg: 'bg-sky-400/10', border: 'border-sky-400/20', category: 'Frontend' },
+  { name: 'Recharts', color: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/20', category: 'Frontend' },
+  { name: 'Node.js', color: 'text-indigo-500', bg: 'bg-indigo-500/10', border: 'border-indigo-500/20', category: 'Backend' },
   { name: 'Express.js', color: 'text-primary', bg: 'bg-primary/10', border: 'border-primary/20', category: 'Backend' },
-  { name: 'MongoDB', color: 'text-emerald-500', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', category: 'Backend' },
-  { name: 'Gemini AI', color: 'text-teal-500', bg: 'bg-teal-500/10', border: 'border-teal-500/20', category: 'AI' },
-  { name: 'GitHub API', color: 'text-green-600', bg: 'bg-green-600/10', border: 'border-green-600/20', category: 'Integration' },
-  { name: 'JWT Auth', color: 'text-emerald-600', bg: 'bg-emerald-600/10', border: 'border-emerald-600/20', category: 'Security' },
+  { name: 'MongoDB', color: 'text-blue-600', bg: 'bg-blue-600/10', border: 'border-blue-600/20', category: 'Backend' },
+  { name: 'Gemini AI', color: 'text-sky-500', bg: 'bg-sky-500/10', border: 'border-sky-500/20', category: 'AI' },
+  { name: 'GitHub API', color: 'text-indigo-600', bg: 'bg-indigo-600/10', border: 'border-indigo-600/20', category: 'Integration' },
+  { name: 'JWT Auth', color: 'text-blue-700', bg: 'bg-blue-700/10', border: 'border-blue-700/20', category: 'Security' },
 ];
 
 const TEAM = [
-  { name: 'Shubham Kumar Yadav', role: 'Full Stack & Ideation', bio: 'BTech Student. Designed the conceptual framework and served as the primary Full Stack engineer bringing CampusPath to life.', avatar: 'SK', gradient: 'from-emerald-500 to-green-600', shadow: 'shadow-emerald-500/20' },
-  { name: 'Satyam Shukla', role: 'Frontend & Research', bio: 'BTech Student. Spearheaded the frontend architecture and conducted core research to refine the platform user experience.', avatar: 'SS', gradient: 'from-green-500 to-teal-600', shadow: 'shadow-green-500/20' },
-  { name: 'Saijal Chauhan', role: 'Designing / UI & UX', bio: 'BTech Student. Masterminded the visual identity, creating the beautiful glassmorphic designs and seamless user workflows.', avatar: 'SC', gradient: 'from-emerald-400 to-teal-500', shadow: 'shadow-emerald-500/20' },
-  { name: 'Madhur Sharma', role: 'Backend Engineering', bio: 'BTech Student. Engineered the robust server architecture, database schemas, and API integrations that power the platform.', avatar: 'MS', gradient: 'from-teal-400 to-emerald-600', shadow: 'shadow-teal-500/20' },
+  { name: 'Shubham Kumar Yadav', role: 'Full Stack & Ideation', bio: 'BTech Student. Designed the conceptual framework and served as the primary Full Stack engineer bringing CampusPath to life.', avatar: 'SK', gradient: 'from-primary to-blue-600', shadow: 'shadow-primary/20' },
+  { name: 'Satyam Shukla', role: 'Frontend & Research', bio: 'BTech Student. Spearheaded the frontend architecture and conducted core research to refine the platform user experience.', avatar: 'SS', gradient: 'from-blue-500 to-indigo-600', shadow: 'shadow-blue-500/20' },
+  { name: 'Saijal Chauhan', role: 'Designing / UI & UX', bio: 'BTech Student. Masterminded the visual identity, creating the beautiful glassmorphic designs and seamless user workflows.', avatar: 'SC', gradient: 'from-primary/80 to-blue-500', shadow: 'shadow-primary/20' },
+  { name: 'Madhur Sharma', role: 'Backend Engineering', bio: 'BTech Student. Engineered the robust server architecture, database schemas, and API integrations that power the platform.', avatar: 'MS', gradient: 'from-indigo-400 to-primary', shadow: 'shadow-indigo-500/20' },
 ];
 
 export default function About() {
@@ -142,7 +142,7 @@ export default function About() {
                 transition={{ delay: idx * 0.1, duration: 0.5 }}
                 whileHover={{ y: -12, scale: 1.03, transition: { type: 'spring', stiffness: 300 } }}
                 key={name} 
-                className="glass-panel p-5 flex flex-col items-center text-center group cursor-pointer hover:border-primary/50 hover:shadow-[0_20px_40px_rgba(16,185,129,0.2)] hover:bg-primary/5 transition-all duration-300"
+                className="glass-panel p-5 flex flex-col items-center text-center group cursor-pointer hover:border-primary/50 hover:shadow-[0_20px_40px_rgba(9,105,218,0.2)] hover:bg-primary/5 transition-all duration-300"
               >
                 <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${gradient} shadow-xl ${shadow} flex items-center justify-center text-white font-black text-3xl mb-6 group-hover:scale-110 transition-transform duration-500`}>
                   {avatar}

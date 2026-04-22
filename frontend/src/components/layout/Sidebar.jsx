@@ -92,7 +92,7 @@ export default function Sidebar() {
         
         {user && (
           <div className="hidden sm:flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center text-xs font-bold text-foreground overflow-hidden">
+            <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary overflow-hidden">
                {user.githubUsername ? (
                  <img src={`https://github.com/${user.githubUsername}.png`} alt={user.name} className="w-full h-full" />
                ) : (
