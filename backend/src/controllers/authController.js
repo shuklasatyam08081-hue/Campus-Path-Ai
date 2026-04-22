@@ -70,4 +70,18 @@ const updateProfile = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login, getMe, updateProfile };
+const updatePortfolio = async (req, res, next) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { portfolioData: req.body.portfolioData },
+      { new: true }
+    );
+    res.json({ success: true, user });
+  } catch (error) {
+    console.error('Portfolio Update Error:', error.message);
+    res.status(500).json({ success: false, message: error.message || 'Portfolio update failed' });
+  }
+};
+
+module.exports = { register, login, getMe, updateProfile, updatePortfolio };

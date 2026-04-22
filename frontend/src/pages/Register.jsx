@@ -1,16 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Zap, Mail, Lock, User, Eye, EyeOff, GitBranch, Globe, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Register() {
-  const { register } = useAuth();
+  const { register, loginWithToken } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Handle OAuth callback token
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    if (token) {
+      setLoading(true);
+      loginWithToken(token)
+        .then(() => navigate('/onboarding'))
+        .catch(() => setError('Social login failed. Please try again.'))
+        .finally(() => setLoading(false));
+    }
+  }, []);
+
+  const handleOAuth = (provider) => {
+    window.location.href = `http://localhost:5000/api/auth/${provider}`;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -66,10 +83,10 @@ export default function Register() {
           <div className="relative z-10">
             {/* Social Auth */}
             <div className="flex gap-4 mb-8">
-              <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-background/50 border border-border hover:bg-muted text-sm font-bold transition-colors">
+              <button onClick={() => handleOAuth('github')} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-background/50 border border-border hover:bg-muted text-sm font-bold transition-colors">
                 <GitBranch size={18} /> GitHub
               </button>
-              <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-background/50 border border-border hover:bg-muted text-sm font-bold transition-colors">
+              <button onClick={() => handleOAuth('google')} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-background/50 border border-border hover:bg-muted text-sm font-bold transition-colors">
                 <Globe size={18} /> Google
               </button>
             </div>

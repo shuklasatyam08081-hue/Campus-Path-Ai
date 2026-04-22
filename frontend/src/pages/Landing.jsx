@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Navbar from '../components/layout/Navbar';
 import { motion } from 'framer-motion';
-import { 
-  ChevronRight, Zap, GitBranch, Brain, Map, Trophy, Users, 
-  BarChart, ArrowRight, Star, Check, Sparkles, Code, Terminal, 
+import {
+  ChevronRight, Zap, GitBranch, Brain, Map, Trophy, Users,
+  BarChart, ArrowRight, Star, Check, Sparkles, Code, Terminal,
   Rocket, ShieldCheck, Cpu
 } from 'lucide-react';
 
@@ -47,7 +47,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 selection:text-primary-foreground">
       <Navbar />
-      
+
       {/* Background Decorative Elements - GitHub Themed */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute top-[-5%] right-[-5%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[100px]" />
@@ -57,7 +57,7 @@ export default function Landing() {
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-6 overflow-hidden md:pt-48 md:pb-32">
         <div className="max-w-6xl mx-auto flex flex-col items-center text-center relative z-10">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-semibold mb-8"
@@ -66,7 +66,7 @@ export default function Landing() {
             <span>Powering 50,000+ Career Paths</span>
           </motion.div>
 
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -76,7 +76,7 @@ export default function Landing() {
             <span className="text-gradient">From Your Code</span>
           </motion.h1>
 
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -85,19 +85,19 @@ export default function Landing() {
             Stop wasting months on tutorials you've already mastered. Link your GitHub and let AI build a surgical, week-by-week roadmap to your target role.
           </motion.p>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
             className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto"
           >
-            <button 
+            <button
               onClick={() => navigate('/register')}
               className="px-8 py-4 bg-primary text-primary-foreground text-lg font-bold rounded-lg hover:bg-primary/90 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 group shadow-sm"
             >
               Start Your Journey <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </button>
-            <button 
+            <button
               onClick={() => navigate('/about')}
               className="px-8 py-4 bg-card border border-border text-lg font-bold rounded-lg hover:bg-muted transition-all"
             >
@@ -106,12 +106,12 @@ export default function Landing() {
           </motion.div>
 
           {/* Hero Visual - GitHub Syntax Themed */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: [-5, 5, -5] }}
-            transition={{ 
-              opacity: { delay: 0.5, duration: 0.8 }, 
-              y: { repeat: Infinity, duration: 6, ease: "easeInOut", delay: 1.3 } 
+            transition={{
+              opacity: { delay: 0.5, duration: 0.8 },
+              y: { repeat: Infinity, duration: 6, ease: "easeInOut", delay: 1.3 }
             }}
             className="mt-20 w-full max-w-5xl glass-panel p-2 shadow-xl relative"
           >
@@ -132,19 +132,19 @@ export default function Landing() {
                   </div>
                   <code className="space-y-2 block">
                     <div className="flex gap-2">
-                       <span className="text-blue-500">const</span> <span className="text-foreground">profile</span> = <span className="text-blue-500">await</span> <span className="text-blue-600">AnalyzeGitHub</span>(<span className="text-orange-600">"username"</span>);
+                      <span className="text-blue-500">const</span> <span className="text-foreground">profile</span> = <span className="text-blue-500">await</span> <span className="text-blue-600">AnalyzeGitHub</span>(<span className="text-orange-600">"username"</span>);
                     </div>
                     <div className="flex gap-2">
-                       <span className="text-blue-500">const</span> <span className="text-foreground">roadmap</span> = <span className="text-blue-500">new</span> <span className="text-blue-600">CareerPath</span>(profile);
+                      <span className="text-blue-500">const</span> <span className="text-foreground">roadmap</span> = <span className="text-blue-500">new</span> <span className="text-blue-600">CareerPath</span>(profile);
                     </div>
                     <div className="flex gap-2 text-muted-foreground italic">
-                       {"// Skipping React basics (Mastery detected)..."}
+                      {"// Skipping React basics (Mastery detected)..."}
                     </div>
                     <div className="flex gap-2">
-                       roadmap.<span className="text-blue-600">setTarget</span>(<span className="text-orange-600">"Senior_Backend_Engineer"</span>);
+                      roadmap.<span className="text-blue-600">setTarget</span>(<span className="text-orange-600">"Senior_Backend_Engineer"</span>);
                     </div>
                     <div className="flex gap-2">
-                       <span className="text-blue-500">return</span> roadmap.<span className="text-blue-600">generate</span>();
+                      <span className="text-blue-500">return</span> roadmap.<span className="text-blue-600">generate</span>();
                     </div>
                   </code>
                 </div>
@@ -152,7 +152,7 @@ export default function Landing() {
             </div>
             {/* Floating decoration */}
             <div className="absolute -top-4 -right-6 w-12 h-12 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20 rotate-12">
-               <Zap size={24} className="text-primary-foreground" />
+              <Zap size={24} className="text-primary-foreground" />
             </div>
           </motion.div>
         </div>
@@ -163,7 +163,7 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
             {STATS.map(({ value, label }, idx) => (
-              <motion.div 
+              <motion.div
                 key={label}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -191,7 +191,7 @@ export default function Landing() {
             </p>
           </div>
 
-          <motion.div 
+          <motion.div
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
@@ -199,7 +199,7 @@ export default function Landing() {
             className="grid grid-cols-1 md:grid-cols-3 gap-4"
           >
             {FEATURES.map((feature, idx) => (
-              <motion.div 
+              <motion.div
                 key={feature.title}
                 variants={itemVariants}
                 whileHover={{ y: -4, scale: 1.01 }}
@@ -218,30 +218,30 @@ export default function Landing() {
 
       {/* Steps CTA */}
       <section className="py-24 bg-card relative overflow-hidden">
-         <div className="max-w-4xl mx-auto px-6 relative z-10 text-center">
-            <h2 className="text-3xl md:text-5xl font-bold font-sans mb-12">How to get started?</h2>
-            <div className="space-y-6 text-left">
-              {[
-                { s: "01", t: "Connect GitHub", d: "One-click connection to analyze all your code contributions and repos." },
-                { s: "02", t: "Pick Your Goal", d: "Choose from 20+ specialized career paths or build a custom one." },
-                { s: "03", t: "Master the Gaps", d: "Follow your AI curriculum and automatically match with open roles." }
-              ].map((step, i) => (
-                <motion.div 
-                  key={step.s}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.2 }}
-                  className="flex items-center gap-4 p-4 md:p-5 rounded-lg bg-background border border-border hover:border-primary/30 transition-all"
-                >
-                  <span className="text-4xl md:text-5xl font-black font-sans text-primary/10 leading-none">{step.s}</span>
-                  <div>
-                    <h4 className="text-xl font-bold mb-1">{step.t}</h4>
-                    <p className="text-muted-foreground">{step.d}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-         </div>
+        <div className="max-w-4xl mx-auto px-6 relative z-10 text-center">
+          <h2 className="text-3xl md:text-5xl font-bold font-sans mb-12">How to get started?</h2>
+          <div className="space-y-6 text-left">
+            {[
+              { s: "01", t: "Connect GitHub", d: "One-click connection to analyze all your code contributions and repos." },
+              { s: "02", t: "Pick Your Goal", d: "Choose from 20+ specialized career paths or build a custom one." },
+              { s: "03", t: "Master the Gaps", d: "Follow your AI curriculum and automatically match with open roles." }
+            ].map((step, i) => (
+              <motion.div
+                key={step.s}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.2 }}
+                className="flex items-center gap-4 p-4 md:p-5 rounded-lg bg-background border border-border hover:border-primary/30 transition-all"
+              >
+                <span className="text-4xl md:text-5xl font-black font-sans text-primary/10 leading-none">{step.s}</span>
+                <div>
+                  <h4 className="text-xl font-bold mb-1">{step.t}</h4>
+                  <p className="text-muted-foreground">{step.d}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* Testimonials */}
@@ -249,7 +249,7 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {TESTIMONIALS.map((t, idx) => (
-              <motion.div 
+              <motion.div
                 key={t.name}
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
@@ -277,7 +277,7 @@ export default function Landing() {
 
       {/* Final CTA */}
       <section className="py-24 px-6 text-center">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           className="max-w-4xl mx-auto glass-panel p-12 md:p-20 relative overflow-hidden"
@@ -287,7 +287,7 @@ export default function Landing() {
           <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-xl mx-auto leading-relaxed">
             Join thousands of developers leveling up with AI-powered career paths.
           </p>
-          <button 
+          <button
             onClick={() => navigate('/register')}
             className="px-10 py-5 bg-primary text-primary-foreground text-xl font-bold rounded-lg shadow-sm hover:bg-primary/90 hover:scale-[1.02] active:scale-95 transition-all inline-flex items-center gap-3"
           >
@@ -306,10 +306,10 @@ export default function Landing() {
             <span className="font-bold text-lg font-sans tracking-tighter">CampusPath AI</span>
           </div>
           <div className="flex gap-5 text-sm text-muted-foreground font-medium">
-             <Link to="/about" className="hover:text-primary transition-colors">About</Link>
-             <Link to="/contact" className="hover:text-primary transition-colors">Contact</Link>
-             <Link to="/terms" className="hover:text-primary transition-colors">Terms</Link>
-             <Link to="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
+            <Link to="/about" className="hover:text-primary transition-colors">About</Link>
+            <Link to="/contact" className="hover:text-primary transition-colors">Contact</Link>
+            <Link to="/terms" className="hover:text-primary transition-colors">Terms</Link>
+            <Link to="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
           </div>
           <div className="text-sm text-muted-foreground">
             © 2024 CampusPath AI. All rights reserved.

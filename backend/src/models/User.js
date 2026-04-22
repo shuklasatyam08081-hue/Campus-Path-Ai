@@ -4,7 +4,9 @@ const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
   email: { type: String, required: true, unique: true, lowercase: true },
-  password: { type: String, required: true, minlength: 6 },
+  password: { type: String, minlength: 6 },
+  googleId: { type: String, unique: true, sparse: true },
+  githubId: { type: String, unique: true, sparse: true },
   githubUsername: { type: String, default: '' },
   avatar: { type: String, default: '' },
   targetRole: { type: String, default: 'Fullstack' },
@@ -25,16 +27,18 @@ const userSchema = new mongoose.Schema({
   onboardingComplete: { type: Boolean, default: false },
   githubData: { type: Object, default: null },
   lastGithubSync: { type: Date, default: null },
+  portfolioData: { type: Object, default: null },
   createdAt: { type: Date, default: Date.now },
 
 });
 
 userSchema.pre('save', async function () {
-  if (!this.isModified('password')) return;
+  if (!this.isModified('password') || !this.password) return;
   this.password = await bcrypt.hash(this.password, 12);
 });
 
 userSchema.methods.matchPassword = async function (enteredPassword) {
+  if (!this.password) return false;
   return await bcrypt.compare(enteredPassword, this.password);
 };
 

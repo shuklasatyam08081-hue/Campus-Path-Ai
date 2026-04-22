@@ -102,9 +102,9 @@ const verifyMilestone = async (req, res) => {
   if (!week) return res.status(404).json({ success: false, message: 'Week not found' });
   if (!week.expectedRepoName) return res.status(400).json({ success: false, message: 'No expected repository name for this week' });
 
-  const repoExists = await checkRepoExists(roadmap.githubUsername, week.expectedRepoName);
+  const verification = await checkRepoExists(roadmap.githubUsername, week.expectedRepoName);
   
-  if (repoExists) {
+  if (verification.exists && verification.valid) {
     week.isRepoVerified = true;
     
     // Automatically complete all tasks for this week if verified
@@ -131,8 +131,18 @@ const verifyMilestone = async (req, res) => {
     await roadmap.save();
     
     return res.json({ success: true, verified: true, message: 'Repository verified successfully!', roadmap });
+  } else if (verification.exists && !verification.valid) {
+    return res.json({ 
+      success: true, 
+      verified: false, 
+      message: `Invalid Repository: ${verification.reason}. Please add your project code and try again.` 
+    });
   } else {
-    return res.json({ success: true, verified: false, message: `Repository not found! Please ensure you created a public repo at: ${roadmap.githubUsername?.trim()}/${week.expectedRepoName?.trim()}` });
+    return res.json({ 
+      success: true, 
+      verified: false, 
+      message: `Repository not found! Please create a public repo at: ${roadmap.githubUsername}/${week.expectedRepoName}` 
+    });
   }
 };
 

@@ -230,17 +230,29 @@ export default function RoadmapViewer() {
   };
 
   const getYouTubeEmbedUrl = (url) => {
-    if (!url) return null;
+    if (!url || typeof url !== 'string') return null;
+
+    // If it's already an embed link, return it
     if (url.includes('youtube.com/embed/')) return url;
+
+    // Handle search links - DO NOT EMBED
+    if (url.includes('/results') || url.includes('search_query') || !url.includes('v=')) {
+      if (url.includes('youtube.com') || url.includes('youtu.be')) return null;
+    }
+
     let videoId = '';
-    if (url.includes('youtu.be/')) {
-      videoId = url.split('youtu.be/')[1]?.split(/[?#]/)[0];
-    } else if (url.includes('watch?v=')) {
-      videoId = url.split('watch?v=')[1]?.split(/[&?#]/)[0];
-    } else if (url.includes('/results')) {
+    try {
+      if (url.includes('youtu.be/')) {
+        videoId = url.split('youtu.be/')[1]?.split(/[?#]/)[0];
+      } else if (url.includes('watch?v=')) {
+        videoId = url.split('watch?v=')[1]?.split(/[&?#]/)[0];
+      }
+    } catch (e) {
       return null;
     }
-    return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+
+    // Basic validation of videoId length (usually 11 chars)
+    return (videoId && videoId.length >= 10) ? `https://www.youtube.com/embed/${videoId}` : null;
   };
 
   const renderSingleDayModal = () => {
@@ -283,24 +295,41 @@ export default function RoadmapViewer() {
                     <h4 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-3">
                       <Video size={14} /> Video Lesson
                     </h4>
-                    
+
                     {embedUrl ? (
-                      <div className="w-full aspect-video rounded-xl overflow-hidden bg-black/50 border border-white/10 mb-4">
-                        <iframe
-                          width="100%" height="100%"
-                          src={embedUrl}
-                          title="YouTube Lesson"
-                          className="border-none"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        />
+                      <div className="space-y-3">
+                        <div className="w-full aspect-video rounded-xl overflow-hidden bg-black/50 border border-white/10">
+                          <iframe
+                            width="100%" height="100%"
+                            src={embedUrl}
+                            title="YouTube Lesson"
+                            className="border-none"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        </div>
+                        <button
+                          onClick={() => window.open(`https://www.youtube.com/results?search_query=${selectedDay.topic}+${roadmap?.targetRole}+tutorial`, '_blank')}
+                          className="w-full flex items-center justify-center gap-2 py-2 bg-muted/50 hover:bg-primary/10 text-muted-foreground hover:text-primary text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border border-transparent hover:border-primary/20"
+                        >
+                          <Play size={12} /> Video not working? Search instead
+                        </button>
                       </div>
                     ) : (
-                      <div className="w-full aspect-video rounded-xl flex flex-col items-center justify-center bg-muted border border-border/20 mb-4 p-4 text-center">
-                        <Play size={32} className="text-muted-foreground/30 mb-2" />
-                        <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
-                          {selectedDay.videoLink?.includes('results') ? 'Search Required' : 'Manual View Recommended'}
+                      <div className="w-full aspect-video rounded-xl flex flex-col items-center justify-center bg-muted border border-border/20 mb-4 p-6 text-center group">
+                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                          <Play size={24} className="text-primary ml-1" />
+                        </div>
+                        <p className="text-xs text-foreground font-bold mb-1">Direct Video Unavailable</p>
+                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider mb-4">
+                          {selectedDay.videoLink?.includes('results') ? 'AI suggested a search fallback' : 'Video might be restricted'}
                         </p>
+                        <button
+                          onClick={() => window.open(`https://www.youtube.com/results?search_query=${selectedDay.topic}+${roadmap?.targetRole}+tutorial`, '_blank')}
+                          className="px-4 py-2 bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-primary/20 hover:scale-105 transition-all"
+                        >
+                          Search Now
+                        </button>
                       </div>
                     )}
 
@@ -389,13 +418,13 @@ export default function RoadmapViewer() {
             ))}
           </div>
           <div className="flex bg-muted border border-border rounded-xl p-1 shadow-inner h-fit">
-            <button 
+            <button
               onClick={() => setViewMode('list')}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'list' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
             >
               <Layout size={14} /> List
             </button>
-            <button 
+            <button
               onClick={() => setViewMode('3d')}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === '3d' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
             >
@@ -409,27 +438,27 @@ export default function RoadmapViewer() {
         <div className="flex-1 h-full relative">
           <AnimatePresence mode="wait">
             {viewMode === '3d' ? (
-              <motion.div 
-                key="3d" 
-                initial={{ opacity: 0, scale: 0.9 }} 
-                animate={{ opacity: 1, scale: 1 }} 
+              <motion.div
+                key="3d"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 1.1 }}
                 className="absolute inset-0 z-0"
               >
-                <ThreeSkillTree 
-                  roadmap={{ weeks }} 
-                  activeWeek={weeks.findIndex(w => w.weekNumber === selected?.weekNumber)} 
+                <ThreeSkillTree
+                  roadmap={{ weeks }}
+                  activeWeek={weeks.findIndex(w => w.weekNumber === selected?.weekNumber)}
                   onSelectWeek={(idx) => {
                     setSelected(weeks[idx]);
                     setViewMode('list');
-                  }} 
+                  }}
                 />
               </motion.div>
             ) : (
-              <motion.div 
-                key="list" 
-                initial={{ opacity: 0 }} 
-                animate={{ opacity: 1 }} 
+              <motion.div
+                key="list"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="h-full overflow-y-auto no-scrollbar relative"
               >

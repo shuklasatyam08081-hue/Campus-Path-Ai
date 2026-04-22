@@ -24,42 +24,46 @@ const reviewRepository = async (username, repoName) => {
     // 2. Find "interesting" files (JS, TS, Python, etc.)
     const isInteresting = file => 
       file.type === 'file' && 
-      /\.(js|jsx|ts|tsx|py|go|java|cpp|c|php)$/i.test(file.name) &&
-      !file.name.includes('config') &&
-      !file.name.includes('test') &&
-      !file.name.includes('lock');
+      /\.(js|jsx|ts|tsx|py|go|java|cpp|c|php|html|css|rs|rb|cs|swift|kt)$/i.test(file.name) &&
+      !file.name.toLowerCase().includes('config') &&
+      !file.name.toLowerCase().includes('test') &&
+      !file.name.toLowerCase().includes('lock') &&
+      !file.name.toLowerCase().includes('min.js');
 
     let interestingFiles = contents.filter(isInteresting);
 
-    // Deep Search Logic: If root is empty, check subdirectories
-    if (interestingFiles.length === 0) {
-      console.log('📂 Root empty of source files, checking subdirectories...');
-      const subDirs = contents.filter(f => f.type === 'dir' && ['src', 'backend', 'frontend', 'app', 'lib', 'server'].includes(f.name.toLowerCase()));
+    // Deep Search Logic: If root doesn't have enough files, check ALL subdirectories
+    if (interestingFiles.length < 3) {
+      console.log('📂 Root lacks source files, scanning subdirectories...');
+      const allDirs = contents.filter(f => f.type === 'dir' && !f.name.startsWith('.'));
       
-      for (const dir of subDirs.slice(0, 3)) { // Check top 3 subdirs
+      for (const dir of allDirs.slice(0, 8)) { // Scan up to 8 subdirectories
          try {
-           const { data: subContents } = await axios.get(`${GITHUB_API_URL}/repos/${username}/${repoName}/contents/${dir.name}`, { headers });
+           const { data: subContents } = await axios.get(`${GITHUB_API_URL}/repos/${username}/${repoName}/contents/${dir.path}`, { headers });
            let found = subContents.filter(isInteresting);
            
-           // If still no files, but there is a 'src' inside this subdir, check it too!
+           // If still no files, check one level deeper
            if (found.length === 0) {
-             const nestedSrc = subContents.find(f => f.type === 'dir' && f.name.toLowerCase() === 'src');
-             if (nestedSrc) {
-               const { data: nestedContents } = await axios.get(`${GITHUB_API_URL}/repos/${username}/${repoName}/contents/${dir.name}/${nestedSrc.name}`, { headers });
-               found = nestedContents.filter(isInteresting);
+             const nestedDirs = subContents.filter(f => f.type === 'dir' && !f.name.startsWith('.'));
+             for (const nDir of nestedDirs.slice(0, 3)) {
+               const { data: nestedContents } = await axios.get(`${GITHUB_API_URL}/repos/${username}/${repoName}/contents/${nDir.path}`, { headers });
+               found = [...found, ...nestedContents.filter(isInteresting)];
+               if (found.length >= 3) break;
              }
            }
 
            interestingFiles = [...interestingFiles, ...found];
-           if (interestingFiles.length >= 3) break;
+           if (interestingFiles.length >= 5) break;
          } catch (e) { /* skip failed dir fetch */ }
       }
     }
 
-    interestingFiles = interestingFiles.slice(0, 3); // Review top 3 files for speed
+    // Keep unique files by path
+    interestingFiles = Array.from(new Map(interestingFiles.map(item => [item.path, item])).values());
+    interestingFiles = interestingFiles.slice(0, 5); // Review up to 5 files for a better deep-dive
 
     if (interestingFiles.length === 0) {
-      throw new Error('No supported source files found for review in root or major subdirectories.');
+      throw new Error('No supported source files found for review. Make sure your repo has code files (js, py, etc.) and is not just a README.');
     }
 
     // 3. Fetch content of these files

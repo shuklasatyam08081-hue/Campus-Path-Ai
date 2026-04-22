@@ -40,6 +40,48 @@ const analyzeGitHub = async (username) => {
       pytorch: 'PyTorch', graphql: 'GraphQL', mongodb: 'MongoDB', postgres: 'PostgreSQL',
     };
 
+    // ── NEW: Multi-Language Deep Content Scanning ──
+    const deepFrameworks = new Set();
+    const topReposForDeepScan = repos.slice(0, 5); 
+    
+    for (const repo of topReposForDeepScan) {
+      try {
+        let manifestPath = null;
+        if (repo.language === 'JavaScript' || repo.language === 'TypeScript') manifestPath = 'package.json';
+        else if (repo.language === 'Python') manifestPath = 'requirements.txt';
+        else if (repo.language === 'Go') manifestPath = 'go.mod';
+        else if (repo.language === 'Java') manifestPath = 'pom.xml';
+
+        if (manifestPath) {
+          const contentsRes = await axios.get(
+            `${GITHUB_API}/repos/${username}/${repo.name}/contents/${manifestPath}`,
+            { headers: getHeaders() }
+          );
+          
+          if (contentsRes.data && contentsRes.data.content) {
+            const content = Buffer.from(contentsRes.data.content, 'base64').toString().toLowerCase();
+            
+            const universalMap = {
+              // JS/TS
+              'react': 'React', 'express': 'Express.js', 'next': 'Next.js', 'tailwindcss': 'Tailwind CSS',
+              // Python
+              'django': 'Django', 'flask': 'Flask', 'fastapi': 'FastAPI', 'pandas': 'Pandas', 'numpy': 'NumPy',
+              // Go
+              'gin-gonic': 'Gin Framework', 'beego': 'Beego',
+              // Java
+              'spring-boot': 'Spring Boot', 'hibernate': 'Hibernate',
+              // Common
+              'mongodb': 'MongoDB', 'postgresql': 'PostgreSQL', 'docker': 'Docker', 'kubernetes': 'Kubernetes'
+            };
+
+            for (const [key, val] of Object.entries(universalMap)) {
+              if (content.includes(key)) deepFrameworks.add(val);
+            }
+          }
+        }
+      } catch (e) { /* silent fail */ }
+    }
+
     for (const repo of repos) {
       totalStars += repo.stargazers_count || 0;
       if (repo.language) {
@@ -55,6 +97,9 @@ const analyzeGitHub = async (username) => {
         }
       }
     }
+
+    // Merge deep scan results
+    deepFrameworks.forEach(f => frameworks.add(f));
 
     // Get commit activity for top repos
     const topRepos = repos.slice(0, 10);
@@ -264,9 +309,32 @@ const checkRepoExists = async (username, repoName) => {
     const cleanUser = username?.trim();
     const cleanRepo = repoName?.trim();
     const res = await axios.get(`${GITHUB_API}/repos/${cleanUser}/${cleanRepo}`, { headers: getHeaders() });
-    return res.status === 200;
+    
+    if (res.status !== 200) return false;
+
+    // --- Anti-Cheat Check ---
+    const repo = res.data;
+    // 1. Check if repo is empty (no code/files)
+    if (repo.size === 0) return { exists: true, valid: false, reason: 'Repository is empty' };
+    
+    // 2. Check for at least 1 commit
+    // (Already implied if size > 0 usually, but let's be sure)
+    
+    // 3. Optional: Check if it has more than just a README.md
+    // We can fetch contents to verify
+    try {
+      const contents = await axios.get(`${GITHUB_API}/repos/${cleanUser}/${cleanRepo}/contents`, { headers: getHeaders() });
+      const files = contents.data;
+      const actualFiles = files.filter(f => !f.name.toLowerCase().includes('readme') && f.type === 'file');
+      
+      if (actualFiles.length === 0) {
+        return { exists: true, valid: false, reason: 'No actual code files found (only README/metadata)' };
+      }
+    } catch (e) { /* silent fail for contents check */ }
+
+    return { exists: true, valid: true };
   } catch (error) {
-    return false;
+    return { exists: false, valid: false };
   }
 };
 

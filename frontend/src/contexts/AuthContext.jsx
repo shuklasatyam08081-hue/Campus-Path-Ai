@@ -24,6 +24,14 @@ export const AuthProvider = ({ children }) => {
     return data.user;
   };
 
+  const loginWithToken = async (token) => {
+    localStorage.setItem('campuspath_token', token);
+    const { data } = await authAPI.getMe();
+    localStorage.setItem('campuspath_user', JSON.stringify(data.user));
+    setUser(data.user);
+    return data.user;
+  };
+
   const register = async (name, email, password) => {
     const { data } = await authAPI.register({ name, email, password });
     localStorage.setItem('campuspath_token', data.token);
@@ -45,7 +53,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, loading, login, loginWithToken, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

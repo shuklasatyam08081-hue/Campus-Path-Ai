@@ -28,6 +28,7 @@ export const authAPI = {
   login: (data) => api.post('/auth/login', data),
   getMe: () => api.get('/auth/me'),
   updateProfile: (data) => api.put('/auth/profile', data),
+  updatePortfolio: (data) => api.put('/auth/portfolio', data),
 };
 
 export const roadmapAPI = {
@@ -47,6 +48,13 @@ export const githubAPI = {
 export const jobsAPI = {
   getJobs: (role, limit = 50) => api.get(`/jobs?role=${encodeURIComponent(role)}&limit=${limit}`),
   claimMilestone: (milestoneId) => api.post('/jobs/milestone/claim', { milestoneId }),
+};
+
+export const aiAPI = {
+  scoreResume: (formData) => api.post('/ai/score-resume', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  interview: (data) => api.post('/ai/interview', data),
 };
 
 export default api;

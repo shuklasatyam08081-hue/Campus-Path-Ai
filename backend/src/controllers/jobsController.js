@@ -15,17 +15,95 @@ const getJobs = async (req, res) => {
       return res.json({ success: true, jobs: filtered.slice(0, parseInt(limit)), total: filtered.length, cached: true });
     }
 
-    // Fetch from Remotive API - Broaden to all software development categories
-    // We try to get a larger initial pool to ensure results after filtering
-    console.log('📡 Fetching fresh jobs from Remotive...');
-    const { data } = await axios.get('https://remotive.com/api/remote-jobs?limit=150', {
-      headers: { 'Accept': 'application/json', 'User-Agent': 'CampusPath-AI/1.0' },
-      timeout: 10000
-    });
+    // Fetch from multiple sources for better coverage
+    console.log(`📡 Fetching fresh jobs for role: ${role}...`);
+    
+    const fetchers = [
+      axios.get('https://remotive.com/api/remote-jobs?limit=50', {
+        headers: { 'Accept': 'application/json', 'User-Agent': 'CampusPath-AI/1.0' },
+        timeout: 8000
+      }),
+      axios.get('https://www.arbeitnow.com/api/job-board-api', {
+        headers: { 'Accept': 'application/json' },
+        timeout: 8000
+      })
+    ];
 
-    if (!data.jobs || data.jobs.length === 0) throw new Error('Empty or invalid response from jobs API');
+    // Add JSearch (RapidAPI) if key is available
+    const useRapid = process.env.RAPIDAPI_KEY && process.env.RAPIDAPI_KEY !== 'YOUR_RAPIDAPI_KEY_HERE';
+    if (useRapid) {
+      console.log(`💎 Including JSearch (RapidAPI) for "${role} in India"...`);
+      fetchers.push(axios.get('https://jsearch.p.rapidapi.com/search', {
+        params: { 
+          query: `${role} in India`, // Targeted search for India
+          num_pages: '1', 
+          page: '1' 
+        },
+        headers: {
+          'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
+          'X-RapidAPI-Host': process.env.RAPIDAPI_HOST || 'jsearch.p.rapidapi.com'
+        },
+        timeout: 10000
+      }));
+    }
 
-    cachedJobs = data.jobs;
+    const results = await Promise.allSettled(fetchers);
+    let combinedJobs = [];
+
+    // 1. Process Remotive (Result at index 0)
+    if (results[0].status === 'fulfilled' && results[0].value.data.jobs) {
+      console.log(`✅ Remotive: Found ${results[0].value.data.jobs.length} jobs`);
+      combinedJobs = [...results[0].value.data.jobs];
+    } else {
+      console.error('❌ Remotive failed:', results[0].reason?.message || results[0].status);
+    }
+
+    // 2. Process Arbeitnow (Result at index 1)
+    if (results[1].status === 'fulfilled' && results[1].value.data.data) {
+      console.log(`✅ Arbeitnow: Found ${results[1].value.data.data.length} jobs`);
+      const normalizedArbeit = results[1].value.data.data.map(job => ({
+        id: `an-${job.slug}`,
+        title: job.title,
+        company_name: job.company_name,
+        candidate_required_location: job.location || (job.remote ? 'Remote' : 'Unknown'),
+        url: job.url,
+        tags: job.tags || [],
+        description: job.description,
+        publication_date: new Date(job.created_at * 1000).toISOString(),
+        salary: 'Competitive'
+      }));
+      combinedJobs = [...combinedJobs, ...normalizedArbeit];
+    } else {
+      console.error('❌ Arbeitnow failed:', results[1].reason?.message || results[1].status);
+    }
+
+    // 3. Process JSearch (Result at index 2, if it exists)
+    if (useRapid && results[2]) {
+      if (results[2].status === 'fulfilled' && results[2].value.data.data) {
+        console.log(`✅ JSearch: Found ${results[2].value.data.data.length} jobs`);
+        const normalizedJSearch = results[2].value.data.data.map(job => ({
+          id: `js-${job.job_id}`,
+          title: job.job_title,
+          company_name: job.employer_name,
+          candidate_required_location: job.job_city && job.job_country ? `${job.job_city}, ${job.job_country}` : 'Remote/Global',
+          url: job.job_apply_link,
+          tags: [job.job_employment_type, job.job_publisher].filter(Boolean),
+          description: job.job_description,
+          publication_date: job.job_posted_at_datetime_utc || new Date().toISOString(),
+          salary: job.job_min_salary ? `${job.job_salary_currency || '$'}${job.job_min_salary} - ${job.job_max_salary}` : 'Competitive'
+        }));
+        combinedJobs = [...normalizedJSearch, ...combinedJobs];
+      } else {
+        console.error('❌ JSearch failed:', results[2].reason?.message || results[2].status);
+        if (results[2].reason?.response?.data) {
+          console.error('   Error Data:', JSON.stringify(results[2].reason.response.data));
+        }
+      }
+    }
+
+    if (combinedJobs.length === 0) throw new Error('No jobs found from any source. Check API keys and network.');
+
+    cachedJobs = combinedJobs;
     cacheTime = Date.now();
 
     const filtered = adaptiveFilter(cachedJobs, role);

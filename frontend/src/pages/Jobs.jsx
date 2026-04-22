@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
-import { roadmapAPI, jobsAPI } from '../api/client';
+import { roadmapAPI, jobsAPI, aiAPI } from '../api/client';
 import axios from 'axios';
 import { 
   Briefcase, Search, MapPin, Zap, ArrowUp, Tag, TrendingUp, RefreshCw, 
@@ -23,12 +23,10 @@ function InterviewSimulator({ job, onClose }) {
   useEffect(() => {
     // Initial greeting
     setLoading(true);
-    axios.post('http://localhost:5000/api/ai/interview', {
+    aiAPI.interview({
       targetRole: job.role,
       messages: [],
       roadmapContext: user?.roadmapData || {}
-    }, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('campuspath_token')}` }
     }).then(res => {
       setMessages([{ role: 'assistant', content: res.data.message }]);
     }).finally(() => setLoading(false));
@@ -48,12 +46,10 @@ function InterviewSimulator({ job, onClose }) {
     setLoading(true);
 
     try {
-      const { data } = await axios.post('http://localhost:5000/api/ai/interview', {
+      const { data } = await aiAPI.interview({
         targetRole: job.role,
         messages: newMessages,
         roadmapContext: user?.roadmapData || {}
-      }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('campuspath_token')}` }
       });
       setMessages([...newMessages, { role: 'assistant', content: data.message }]);
     } finally {
@@ -169,12 +165,7 @@ function ATSGrader({ job, onClose }) {
     formData.append('jobDescription', `${job.role} at ${job.company}. Requirements: ${job.tags.join(', ')}`);
 
     try {
-      const { data } = await axios.post('http://localhost:5000/api/ai/score-resume', formData, {
-        headers: { 
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${localStorage.getItem('campuspath_token')}` 
-        }
-      });
+      const { data } = await aiAPI.scoreResume(formData);
       setResult(data.data);
     } catch (err) {
       toast.error('Analysis failed. Please try again.');
@@ -232,8 +223,11 @@ function ATSGrader({ job, onClose }) {
                   <p className="text-[10px] font-black tracking-widest text-muted-foreground uppercase mb-1">Match Percentage</p>
                   <p className="text-4xl font-black text-foreground">{result.score}%</p>
                 </div>
-                <div className={`w-16 h-16 rounded-full border-[6px] border-${result.score > 70 ? 'primary' : 'orange-500'}/20 flex items-center justify-center relative`}>
-                   <div className={`absolute inset-0 rounded-full border-[6px] border-${result.score > 70 ? 'primary' : 'orange-500'}`} style={{ clipPath: `inset(0 ${100 - result.score}% 0 0)` }} />
+                <div className={`w-16 h-16 rounded-full border-[6px] ${result.score > 70 ? 'border-primary/20' : 'border-orange-500/20'} flex items-center justify-center relative`}>
+                   <div 
+                     className={`absolute inset-0 rounded-full border-[6px] ${result.score > 70 ? 'border-primary' : 'border-orange-500'}`} 
+                     style={{ clipPath: `inset(0 ${100 - result.score}% 0 0)` }} 
+                   />
                    <ChevronRight className="text-muted-foreground" size={20} />
                 </div>
               </div>

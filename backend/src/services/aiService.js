@@ -11,8 +11,15 @@ const analyzeResume = async (buffer, jobDescription) => {
   let retryCount = 0;
 
   try {
+    console.log('📄 Extracting text from PDF...');
     const data = await pdf(buffer);
-    const resumeText = data.text;
+    const resumeText = data.text?.trim();
+
+    if (!resumeText || resumeText.length < 50) {
+      throw new Error('Could not extract enough text from the PDF. Please ensure it is not an image-based PDF or a scanned document.');
+    }
+
+    console.log(`✅ Extracted ${resumeText.length} characters of resume text.`);
 
     const prompt = `
       You are an expert Technical Recruiter and ATS (Applicant Tracking System) Specialist.
@@ -37,19 +44,34 @@ const analyzeResume = async (buffer, jobDescription) => {
 
     while (retryCount < MAX_RETRIES) {
       try {
-        console.log(`🤖 [Attempt ${retryCount + 1}/${MAX_RETRIES}] Analyzing Resume...`);
+        console.log(`🤖 [Attempt ${retryCount + 1}/${MAX_RETRIES}] Requesting ATS Analysis...`);
         const model = genAI.getGenerativeModel({ 
           model: modelName,
-          generationConfig: { responseMimeType: "application/json" }
+          generationConfig: { 
+            responseMimeType: "application/json",
+            temperature: 0.1 
+          }
         });
 
         const result = await model.generateContent(prompt);
         const text = result.response.text();
 
+        // Robust JSON extraction
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (!jsonMatch) throw new Error('AI failed to generate a valid analysis format.');
-
-        return JSON.parse(jsonMatch[0].replace(/```json|```/g, '').trim());
+        
+        const cleanJson = jsonMatch[0].replace(/```json|```/g, '').trim();
+        const parsed = JSON.parse(cleanJson);
+        
+        // Defensive checks for expected fields
+        return {
+          score: typeof parsed.score === 'number' ? parsed.score : 0,
+          matchExplanation: parsed.matchExplanation || 'No summary available.',
+          missingKeywords: Array.isArray(parsed.missingKeywords) ? parsed.missingKeywords : [],
+          improvementTips: Array.isArray(parsed.improvementTips) ? parsed.improvementTips : [],
+          technicalGapAnalysis: parsed.technicalGapAnalysis || 'No gap analysis available.'
+        };
+        
       } catch (error) {
         retryCount++;
         const isRateLimit = error.message?.includes('429') || error.message?.includes('Too Many Requests');
@@ -59,9 +81,9 @@ const analyzeResume = async (buffer, jobDescription) => {
           let waitTime = 15000;
           const delayMatch = error.message?.match(/"retryDelay":"(\d+)s"/);
           if (delayMatch) waitTime = (parseInt(delayMatch[1]) + 2) * 1000;
-          else if (isRateLimit) waitTime = 60000;
+          else if (isRateLimit) waitTime = 30000; // 30s for rate limit
 
-          console.warn(`⚠️ Resume API busy. Retrying in ${waitTime/1000}s...`);
+          console.warn(`⚠️ Resume AI busy. Retrying in ${waitTime/1000}s...`);
           await sleep(waitTime);
           continue;
         }
@@ -69,8 +91,8 @@ const analyzeResume = async (buffer, jobDescription) => {
       }
     }
   } catch (error) {
-    console.error('Resume analysis service error:', error);
-    throw new Error('Failed to analyze resume. Please ensure it is a valid PDF and try again.');
+    console.error('❌ Resume analysis service error:', error.message);
+    throw new Error(error.message || 'Failed to analyze resume. Please try again.');
   }
 };
 
