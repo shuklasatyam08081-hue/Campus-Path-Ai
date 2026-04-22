@@ -3,12 +3,16 @@ const pdf = require('pdf-parse');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 const analyzeResume = async (buffer, jobDescription) => {
+  const modelName = 'gemini-flash-latest';
+  const MAX_RETRIES = 5;
+  let retryCount = 0;
+
   try {
     const data = await pdf(buffer);
     const resumeText = data.text;
-
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `
       You are an expert Technical Recruiter and ATS (Applicant Tracking System) Specialist.
@@ -31,9 +35,39 @@ const analyzeResume = async (buffer, jobDescription) => {
       Only return the JSON object, no other text.
     `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    return JSON.parse(response.text().replace(/```json|```/g, ''));
+    while (retryCount < MAX_RETRIES) {
+      try {
+        console.log(`🤖 [Attempt ${retryCount + 1}/${MAX_RETRIES}] Analyzing Resume...`);
+        const model = genAI.getGenerativeModel({ 
+          model: modelName,
+          generationConfig: { responseMimeType: "application/json" }
+        });
+
+        const result = await model.generateContent(prompt);
+        const text = result.response.text();
+
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error('AI failed to generate a valid analysis format.');
+
+        return JSON.parse(jsonMatch[0].replace(/```json|```/g, '').trim());
+      } catch (error) {
+        retryCount++;
+        const isRateLimit = error.message?.includes('429') || error.message?.includes('Too Many Requests');
+        const isHighDemand = error.message?.includes('503') || error.message?.includes('high demand');
+        
+        if (retryCount < MAX_RETRIES && (isRateLimit || isHighDemand)) {
+          let waitTime = 15000;
+          const delayMatch = error.message?.match(/"retryDelay":"(\d+)s"/);
+          if (delayMatch) waitTime = (parseInt(delayMatch[1]) + 2) * 1000;
+          else if (isRateLimit) waitTime = 60000;
+
+          console.warn(`⚠️ Resume API busy. Retrying in ${waitTime/1000}s...`);
+          await sleep(waitTime);
+          continue;
+        }
+        throw error;
+      }
+    }
   } catch (error) {
     console.error('Resume analysis service error:', error);
     throw new Error('Failed to analyze resume. Please ensure it is a valid PDF and try again.');
@@ -41,10 +75,11 @@ const analyzeResume = async (buffer, jobDescription) => {
 };
 
 const conductMockInterview = async ({ roadmapContext, messages, targetRole }) => {
-  try {
-    console.log('🤖 Starting interview simulation for:', targetRole);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+  const modelName = 'gemini-flash-latest';
+  const MAX_RETRIES = 3; // Lower retries for chat interaction to preserve UX
+  let retryCount = 0;
 
+  try {
     const systemPrompt = `
       You are an elite Senior Technical Interviewer for a Top Tier Tech Company.
       Your goal is to conduct a realistic, challenging, but encouraging mock technical interview.
@@ -58,24 +93,32 @@ const conductMockInterview = async ({ roadmapContext, messages, targetRole }) =>
       2. Ask ONE technical or behavioral question at a time related to their role and current roadmap progress.
       3. Evaluate their previous answer (if any) with constructive feedback before moving to the next question.
       4. Keep the tone professional, like a real job interview.
-      5. If the user answers correctly, dive deeper. If they struggle, provide a hint or a learning resource and pivot to a related concept.
       
       CONVERSATION HISTORY:
       ${JSON.stringify(messages || [])}
-      
-      Respond in a supportive but rigorous manner.
     `;
 
-    const result = await model.generateContent(systemPrompt);
-    const response = await result.response;
-    const text = response.text();
-    console.log('✅ AI Response generated successfully');
-    return text;
+    while (retryCount < MAX_RETRIES) {
+      try {
+        console.log(`🤖 Interview Request [Attempt ${retryCount + 1}] for: ${targetRole}`);
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent(systemPrompt);
+        return result.response.text();
+      } catch (error) {
+        retryCount++;
+        const isRateLimit = error.message?.includes('429') || error.message?.includes('Too Many Requests');
+        if (retryCount < MAX_RETRIES && isRateLimit) {
+          console.warn('⚠️ Interview API rate limited. Retrying in 5s...');
+          await sleep(5000);
+          continue;
+        }
+        throw error;
+      }
+    }
   } catch (error) {
-    console.error('❌ Interview service error details:', error);
-    throw new Error('Interview simulation interrupted: ' + error.message);
+    console.error('❌ Interview service error:', error);
+    throw new Error('Interview simulation interrupted. Please check your connection and try again.');
   }
 };
 
-module.exports = { analyzeResume, conductMockInterview };
 module.exports = { analyzeResume, conductMockInterview };

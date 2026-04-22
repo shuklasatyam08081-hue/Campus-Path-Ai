@@ -29,4 +29,3 @@ const handleInterviewChat = async (req, res) => {
 };
 
 module.exports = { scoreResume, handleInterviewChat };
-module.exports = { scoreResume, handleInterviewChat };

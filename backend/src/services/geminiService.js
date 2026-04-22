@@ -9,12 +9,12 @@ const getGenAI = () => {
   return genAI;
 };
 
-/**
- * Generates a high-fidelity, personalized roadmap using the Gemini-2.0-Flash model.
- * The AI identifies required skills for the given role and bridges the gap from current skills.
- */
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 const generateRoadmap = async ({ targetRole, githubAnalysis, manualSkills, weeklyHours, proficiency }) => {
-  const modelName = 'gemini-2.5-flash';
+  const modelName = 'gemini-flash-latest';
+  const MAX_RETRIES = 5;
+  let retryCount = 0;
 
   // 1. Gather all existing knowledge
   const githubSkills = githubAnalysis
@@ -31,7 +31,6 @@ USER PROFILE & TARGET:
 - Current Proficiency: ${proficiency || 'Intermediate'}
 - Time Commitment: ${weeklyHours || 10} hours/week
 
-<<<<<<< Updated upstream
 STRICT GENERATION RULES:
 1. **DAY-WISE FIRST**: Think day-by-day. Detail exactly what the user should learn each day to master the selected skill (${targetRole}).
 2. **GROUP INTO WEEKS**: Group every 7 days into exactly 1 Week. Generate a total of 4 to 8 weeks (depending on the depth of the skill).
@@ -39,7 +38,14 @@ STRICT GENERATION RULES:
     - "videoLink": You MUST generate a working YouTube Search link formatted EXACTLY like this: "https://www.youtube.com/results?search_query=[Insert+Specific+Subtopic+Here]"
     - "docLink": You MUST generate a working Google Search link formatted EXACTLY like this: "https://www.google.com/search?q=[Insert+Specific+Subtopic+Here]+tutorial+docs"
 4. **GITHUB PROJECT**: Every week must culminate in a practical project. Assign an "expectedRepoName" (e.g., "cp-week1-${targetRole.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}") that the user will build to pass the week.
-=======
+  // 2. Build the dynamic AI prompt (moved into the loop if needed, but static here is fine)
+  const prompt = `You are a Friendly and Expert Technical Mentor. Your mission is to generate a COMPREHENSIVE, day-by-day learning roadmap from ABSOLUTE BASIC to ADVANCED level as valid JSON.
+
+USER CONTEXT:
+- Target Role: **${targetRole}**.
+- User already has some experience in: [${knownSkills.join(', ') || 'None'}]. 
+- Proficiency: ${proficiency || 'Beginner'}.
+
 STRICT CONTENT RULES:
 1. **Full Journey Mandatory**: Even if the user knows some skills, DO NOT skip the foundations. Instead, include them as "Week 1-2: Foundations & Review" so the user has a complete reference. The roadmap MUST be a "Zero to Hero" path.
 2. **Dynamic but Long Duration**: Generate exactly **8 to 12 weeks** of content to ensure it is truly "Basic to Advance". Do not make it shorter than 8 weeks.
@@ -49,6 +55,7 @@ STRICT CONTENT RULES:
    - Use "Saving and Managing Data" instead of "State Management/Redux".
 4. **Daily Routine**: 7 days per week. Every day has a clear, simple topic and a learning goal.
 5. **Weekly Milestone**: Ends with a project. Give each project a unique, simple name.
+
 6. **Documentation Links**: Provide a direct 'docLink' for every day. 
    - **PRIORITIZE W3Schools** for web fundamentals (HTML, CSS, JavaScript basics, SQL).
    - For all other topics, provide the **OFFICIAL documentation** link (e.g., nodejs.org, mdn.io). 
@@ -60,16 +67,18 @@ STRICT CONTENT RULES:
    - **PRIORITIZE Embeddable Channels**: FreeCodeCamp, Traversy Media, Programming with Mosh, Net Ninja, Computerphile, Fireship. These channels allow embedding.
    - **HALLUCINATION FALLBACK**: If you are NOT 100% certain of a working direct Video ID for this EXACT topic, you MUST provide a search URL: https://www.youtube.com/results?search_query=${targetRole}+[DayTopic]+tutorial
    - **STRICT**: Only use direct video links or specific search results. NEVER use links that require login, are age-restricted, or are from unrelated tech stacks.
->>>>>>> Stashed changes
+
 
 RETURN ONLY JSON:
+
+JSON STRUCTURE:
+
 {
-  "totalWeeks": [Number of weeks],
+  "totalWeeks": [Number between 8-12],
   "targetRole": "${targetRole}",
   "weeks": [
     {
       "weekNumber": 1,
-<<<<<<< Updated upstream
       "topic": "Main Weekly Theme (e.g., Core Fundamentals)",
       "description": "Short description of the week's goal.",
       "skills": ["${targetRole}", "Related Skill"],
@@ -82,7 +91,6 @@ RETURN ONLY JSON:
           "description": "What exactly to build or learn.",
           "docLink": "https://www.google.com/search?q=Component+State+React+tutorial+docs",
           "videoLink": "https://www.youtube.com/results?search_query=Component+State+React+tutorial"
-=======
       "topic": "Simple Weekly Theme",
       "description": "What we will master this week in simple words.",
       "estimatedHours": ${weeklyHours || 10},
@@ -96,63 +104,90 @@ RETURN ONLY JSON:
           "description": "Goal in simple sentences.",
           "docLink": "https://www.w3schools.com/html/default.asp",
           "videoLink": "https://www.youtube.com/watch?v=qz0aGYMCzl0"
->>>>>>> Stashed changes
+      "topic": "Simple Weekly Theme (e.g., Foundations & Quick Review)",
+      "description": "What we will master this week in simple words.",
+      "estimatedHours": ${weeklyHours || 10},
+      "skills": ["Skill 1", "Skill 2"],
+      "expectedRepoName": "cp-project-name",
+      "days": [
+        {
+          "dayNumber": 1,
+          "topic": "Simple Topic",
+          "subtopic": "Easy Concept",
+          "description": "Today's goal in simple sentences.",
+          "docLink": "https://www.google.com/search?q=[Topic]+beginner+tutorial",
+          "videoLink": "https://www.youtube.com/results?search_query=[Topic]+tutorial"
         }
       ],
-      "tasks": [{ "text": "Finish the GitHub Repo", "completed": false }],
-      "projectBrief": "Build a specific project summarizing the week's 7 days."
+      "tasks": [
+        { "text": "Task description", "completed": false }
+      ],
+      "projectBrief": "Weekend project details."
     }
   ]
 }
 
-Ensure the output is 100% valid JSON and no markdown formatting outside of the braces.`;
+STRICT: Return ONLY JSON. No markdown. No filler.`;
 
-  try {
-    console.log(`🤖 Requesting 8-14 Week Granular Roadmap for "${targetRole}"...`);
-    const model = getGenAI().getGenerativeModel({
-      model: modelName,
-      generationConfig: {
-        responseMimeType: "application/json",
-        temperature: 0.1 // Even lower for maximum consistency
+  while (retryCount < MAX_RETRIES) {
+    try {
+      console.log(`🤖 [Attempt ${retryCount + 1}/${MAX_RETRIES}] Requesting Roadmap for "${targetRole}"...`);
+      const model = getGenAI().getGenerativeModel({
+        model: modelName,
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.1
+        }
+      });
+
+      const result = await model.generateContent(prompt);
+      const text = result.response.text();
+
+      console.log('🤖 Parsing Gemini response...');
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('AI failed to generate a valid roadmap format.');
+
+      const cleanJson = jsonMatch[0].replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(cleanJson);
+
+      if (!parsed.weeks || !Array.isArray(parsed.weeks) || parsed.weeks.length < 4) {
+        throw new Error('Roadmap too short or invalid structure');
       }
-    });
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+      return parsed;
 
-    console.log('🤖 Parsing Gemini response...');
+    } catch (error) {
+      retryCount++;
+      const isRateLimit = error.message?.includes('429') || error.message?.includes('Too Many Requests');
+      const isHighDemand = error.message?.includes('503') || error.message?.includes('high demand');
+      
+      if (retryCount < MAX_RETRIES && (isRateLimit || isHighDemand)) {
+        let waitTime = 10000; // Default 10s
+        
+        // Try to extract suggested retry delay if present in error message (e.g. "retryDelay":"43s")
+        const delayMatch = error.message?.match(/"retryDelay":"(\d+)s"/);
+        if (delayMatch) {
+          waitTime = (parseInt(delayMatch[1]) + 2) * 1000; // Add 2s buffer
+        } else if (isRateLimit) {
+          waitTime = 60000; // If rate-limited and no delay given, wait 60s (quota reset?)
+        }
 
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('AI failed to generate a valid roadmap format.');
+        console.warn(`⚠️ Gemini API busy (${error.message}). Retrying in ${waitTime/1000}s...`);
+        await sleep(waitTime);
+        continue;
+      }
 
-    const cleanJson = jsonMatch[0].replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(cleanJson);
-
-    if (!parsed.weeks || !Array.isArray(parsed.weeks) || parsed.weeks.length < 4) {
-      console.warn('⚠️ AI generated too short a roadmap or invalid structure. Re-triggering logic check.');
-      // If AI still gives < 4 weeks, we force fallback
-      if (parsed.weeks.length < 4) throw new Error('Roadmap too short');
+      require('fs').writeFileSync('gemini_error.txt', error.stack || error.message);
+      console.error('❌ Gemini Error after retries:', error.message);
+      
+      const userMessage = isRateLimit 
+        ? 'The AI model is temporarily rate-limited. Please wait a moment and try again.' 
+        : isHighDemand 
+          ? 'The AI model is currently experiencing high demand. Please try again in a minute.' 
+          : `AI generation failed: ${error.message}`;
+      
+      throw new Error(userMessage);
     }
-
-    return parsed;
-  } catch (error) {
-    require('fs').writeFileSync('gemini_error.txt', error.stack || error.message);
-    console.error('❌ Gemini Error:', error.message);
-    console.log('⚠️ Activating High-Quality Role-Based Fallback...');
-
-    // Fallback: Generate a logical multi-week structure based on the role itself
-    const fallbackTopics = [
-      `Foundations of ${targetRole}`,
-      `Core ${targetRole} Frameworks`,
-      `Advanced Pattern Implementation`,
-      `State Management & Performance`,
-      `Testing & Production Readiness`,
-      `Deployment & CI/CD Pipelines`,
-      `Scalability & System Design`,
-      `Industry Projects & Portfolio`
-    ];
-
-    return generateMockRoadmap(targetRole, fallbackTopics, 8, weeklyHours);
   }
 };
 

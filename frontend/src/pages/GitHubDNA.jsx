@@ -12,40 +12,53 @@ import { useAuth } from '../contexts/AuthContext';
 export default function GitHubDNA() {
   const { user } = useAuth();
   const [username, setUsername] = useState(user?.githubUsername || 'Shubham-k-yadav');
-  const [repoSearch, setRepoSearch] = useState('');
+  const [repoUrl, setRepoUrl] = useState('');
   const [reviewLoading, setReviewLoading] = useState(false);
   const [scorecard, setScorecard] = useState(null);
   const toast = useToast();
 
   const handleReview = async () => {
-    if (!repoSearch.trim()) { toast.error('Please enter a repository name'); return; }
+    if (!repoUrl.trim()) { toast.error('Please enter a GitHub repository URL'); return; }
     setReviewLoading(true);
     setScorecard(null);
     try {
-      const { data } = await githubAPI.reviewRepo(username, repoSearch);
+      const { data } = await githubAPI.reviewRepo({ repoUrl });
       setScorecard(data.data);
       toast.success('Code Review Complete!');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Review failed. Is the repo public?');
+      toast.error(err.response?.data?.message || 'Review failed. Is the link correct?');
     } finally {
       setReviewLoading(false);
     }
   };
 
-  const Metric = ({ label, value, icon: Icon, color }) => (
-    <div className="bg-card border border-border p-4 rounded-xl">
-      <div className="flex justify-between items-start mb-2">
-        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{label}</p>
-        <Icon size={14} className={color} />
-      </div>
-      <div className="flex items-end gap-2">
-        <p className="text-2xl font-black text-foreground">{value}</p>
-        <div className="h-1 flex-1 bg-border rounded-full overflow-hidden mb-2">
-           <div className={`h-full ${color.replace('text-', 'bg-')}`} style={{ width: `${value}%` }} />
+  const Metric = ({ label, value, icon: Icon, color }) => {
+    const bgMap = {
+      'text-red-500': 'bg-red-500',
+      'text-[#39d353]': 'bg-[#39d353]',
+      'text-orange-500': 'bg-orange-500',
+      'text-[#58a6ff]': 'bg-[#58a6ff]',
+      'text-purple-500': 'bg-purple-500',
+      'text-blue-500': 'bg-blue-500'
+    };
+    
+    const bgColor = bgMap[color] || 'bg-primary';
+
+    return (
+      <div className="bg-card border border-border p-4 rounded-xl">
+        <div className="flex justify-between items-start mb-2">
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{label}</p>
+          <Icon size={14} className={color} />
+        </div>
+        <div className="flex items-end gap-2">
+          <p className="text-2xl font-black text-foreground">{value}</p>
+          <div className="h-1 flex-1 bg-border rounded-full overflow-hidden mb-2">
+             <div className={`h-full ${bgColor}`} style={{ width: `${value}%` }} />
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground p-5 font-sans selection:bg-primary/20 selection:text-primary">
@@ -100,17 +113,17 @@ export default function GitHubDNA() {
                  Repo Auto-Reviewer
                </h3>
                <p className="text-xs text-muted-foreground mb-6 leading-relaxed">
-                 Enter a repository name to perform a deep-dive AI audit on security, cleanliness, and architecture.
+                 Paste a full GitHub link to perform a deep-dive AI audit on security, cleanliness, and architecture.
                </p>
                
                <div className="space-y-3">
                  <div className="relative">
                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground opacity-60" />
                    <input 
-                     value={repoSearch}
-                     onChange={(e) => setRepoSearch(e.target.value)}
+                     value={repoUrl}
+                     onChange={(e) => setRepoUrl(e.target.value)}
                      className="w-full bg-card border border-border rounded-lg pl-9 pr-4 py-2 text-sm focus:ring-1 ring-[#39d353] outline-none" 
-                     placeholder="Repository name..." 
+                     placeholder="https://github.com/username/repo" 
                    />
                  </div>
                  <button 

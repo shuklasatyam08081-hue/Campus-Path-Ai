@@ -23,13 +23,18 @@ const generateRoadmapController = async (req, res) => {
     console.log('📦 Using cached GitHub data for roadmap generation');
   }
 
-  const roadmapData = await generateRoadmap({
-    targetRole,
-    githubAnalysis,
-    manualSkills,
-    weeklyHours: req.user.weeklyHours || 10,
-    proficiency: req.user.proficiency || 'Intermediate',
-  });
+  let roadmapData;
+  try {
+    roadmapData = await generateRoadmap({
+      targetRole,
+      githubAnalysis,
+      manualSkills,
+      weeklyHours: req.user.weeklyHours || 10,
+      proficiency: req.user.proficiency || 'Intermediate',
+    });
+  } catch (error) {
+    return res.status(503).json({ success: false, message: error.message });
+  }
 
   // Check if it was real AI or fallback
   const isAI = !roadmapData.weeks[0].topic.startsWith('Mastering ');
@@ -127,7 +132,7 @@ const verifyMilestone = async (req, res) => {
     
     return res.json({ success: true, verified: true, message: 'Repository verified successfully!', roadmap });
   } else {
-    return res.json({ success: true, verified: false, message: 'Repository not found on GitHub.' });
+    return res.json({ success: true, verified: false, message: `Repository not found! Please ensure you created a public repo at: ${roadmap.githubUsername?.trim()}/${week.expectedRepoName?.trim()}` });
   }
 };
 

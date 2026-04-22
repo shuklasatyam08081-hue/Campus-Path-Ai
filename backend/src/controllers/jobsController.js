@@ -11,45 +11,71 @@ const getJobs = async (req, res) => {
   try {
     // Return cached jobs if fresh
     if (cachedJobs && cacheTime && Date.now() - cacheTime < CACHE_TTL) {
-      const filtered = filterByRole(cachedJobs, role);
+      const filtered = adaptiveFilter(cachedJobs, role);
       return res.json({ success: true, jobs: filtered.slice(0, parseInt(limit)), total: filtered.length, cached: true });
     }
 
-    // Fetch from Remotive API (server-side, no CORS issues)
-    const { data } = await axios.get('https://remotive.com/api/remote-jobs?category=software-dev&limit=200', {
+    // Fetch from Remotive API - Broaden to all software development categories
+    // We try to get a larger initial pool to ensure results after filtering
+    console.log('📡 Fetching fresh jobs from Remotive...');
+    const { data } = await axios.get('https://remotive.com/api/remote-jobs?limit=150', {
       headers: { 'Accept': 'application/json', 'User-Agent': 'CampusPath-AI/1.0' },
       timeout: 10000
     });
 
-    if (!data.jobs) throw new Error('Invalid response from jobs API');
+    if (!data.jobs || data.jobs.length === 0) throw new Error('Empty or invalid response from jobs API');
 
     cachedJobs = data.jobs;
     cacheTime = Date.now();
 
-    const filtered = filterByRole(cachedJobs, role);
+    const filtered = adaptiveFilter(cachedJobs, role);
     res.json({ success: true, jobs: filtered.slice(0, parseInt(limit)), total: filtered.length, cached: false });
   } catch (error) {
     console.error('Jobs fetch error:', error.message);
-    // Return fallback curated jobs if API fails
-    res.json({ success: true, jobs: getFallbackJobs(role), total: getFallbackJobs(role).length, fallback: true });
+    // Return fallsback curated jobs if API fails or returns too few
+    const fallback = getFallbackJobs(role);
+    res.json({ success: true, jobs: fallback, total: fallback.length, fallback: true });
   }
 };
 
-function filterByRole(jobs, role) {
-  const keywords = role.toLowerCase().split(' ');
-  return jobs.filter(job => {
+function adaptiveFilter(jobs, role) {
+  const primaryKeywords = role.toLowerCase().split(' ');
+  let results = jobs.filter(job => {
     const title = job.title.toLowerCase();
     const desc = (job.description || '').toLowerCase().substring(0, 500);
-    return keywords.some(kw => title.includes(kw) || desc.includes(kw));
+    return primaryKeywords.some(kw => title.includes(kw) || desc.includes(kw));
   });
+
+  // Adaptive Logic: If too few results, add broad "Developer" or "Software" results
+  if (results.length < 15) {
+    const broadKeywords = ['developer', 'software', 'engineer', 'web', 'fullstack', 'remote'];
+    const additional = jobs.filter(job => {
+      if (results.some(r => r.id === job.id)) return false; // Avoid duplicates
+      const title = job.title.toLowerCase();
+      return broadKeywords.some(kw => title.includes(kw));
+    });
+    results = [...results, ...additional.slice(0, 20)];
+  }
+
+  return results;
 }
 
 function getFallbackJobs(role) {
-  return [
-    { id: 'fb1', company_name: 'OpenAI', title: `Senior ${role}`, candidate_required_location: 'Remote', url: 'https://openai.com/careers', tags: ['AI', 'Python', 'React'], salary: '$130,000 - $200,000', publication_date: new Date().toISOString() },
-    { id: 'fb2', company_name: 'Vercel', title: `${role} Engineer`, candidate_required_location: 'Remote', url: 'https://vercel.com/careers', tags: ['Next.js', 'TypeScript', 'Node.js'], salary: '$120,000 - $180,000', publication_date: new Date().toISOString() },
-    { id: 'fb3', company_name: 'GitHub', title: `${role} II`, candidate_required_location: 'Remote', url: 'https://github.com/about/careers', tags: ['Git', 'Go', 'PostgreSQL'], salary: '$115,000 - $165,000', publication_date: new Date().toISOString() },
+  const baseJobs = [
+    { id: 'fb1', company_name: 'OpenAI', title: `Senior ${role} Engineer`, candidate_required_location: 'Remote', url: 'https://openai.com/careers', tags: ['AI', 'Python', 'React'], salary: '$130,000 - $200,000', publication_date: new Date().toISOString() },
+    { id: 'fb2', company_name: 'Vercel', title: `${role} Specialist`, candidate_required_location: 'Remote', url: 'https://vercel.com/careers', tags: ['Next.js', 'TypeScript', 'Node.js'], salary: '$120,000 - $180,000', publication_date: new Date().toISOString() },
+    { id: 'fb3', company_name: 'GitHub', title: `Platform Engineer (${role})`, candidate_required_location: 'Remote', url: 'https://github.com/about/careers', tags: ['Git', 'Go', 'PostgreSQL'], salary: '$115,000 - $165,000', publication_date: new Date().toISOString() },
+    { id: 'fb4', company_name: 'Stripe', title: `Solutions Architect`, candidate_required_location: 'Remote', url: 'https://stripe.com/jobs', tags: ['API', 'Ruby', 'Fintech'], salary: '$140,000 - $210,000', publication_date: new Date().toISOString() },
+    { id: 'fb5', company_name: 'Discord', title: `Backend Systems Engineer`, candidate_required_location: 'Remote', url: 'https://discord.com/jobs', tags: ['Rust', 'Distributed Systems'], salary: '$135,000 - $190,000', publication_date: new Date().toISOString() },
+    { id: 'fb6', company_name: 'Docker', title: `Cloud Infrastructure Engineer`, candidate_required_location: 'Remote', url: 'https://www.docker.com/careers', tags: ['Docker', 'Kubernetes', 'Go'], salary: '$125,000 - $175,000', publication_date: new Date().toISOString() },
+    { id: 'fb7', company_name: 'Notion', title: `Product Engineer`, candidate_required_location: 'Remote', url: 'https://www.notion.so/careers', tags: ['React', 'TypeScript', 'Postgres'], salary: '$130,000 - $185,000', publication_date: new Date().toISOString() },
+    { id: 'fb8', company_name: 'Figma', title: `Graphics Software Engineer`, candidate_required_location: 'Remote', url: 'https://www.figma.com/careers', tags: ['C++', 'Wasm', 'WebGL'], salary: '$150,000 - $220,000', publication_date: new Date().toISOString() },
+    { id: 'fb9', company_name: 'Airbnb', title: `Full Stack Engineer`, candidate_required_location: 'Remote', url: 'https://careers.airbnb.com', tags: ['React', 'Java', 'Ruby'], salary: '$145,000 - $200,000', publication_date: new Date().toISOString() },
+    { id: 'fb10', company_name: 'Postman', title: `Developer Relations Engineer`, candidate_required_location: 'Remote', url: 'https://www.postman.com/careers', tags: ['APIs', 'JS', 'Communication'], salary: '$110,000 - $160,000', publication_date: new Date().toISOString() },
+    { id: 'fb11', company_name: 'Netlify', title: `DX Engineer`, candidate_required_location: 'Remote', url: 'https://www.netlify.com/careers', tags: ['Serverless', 'Frameworks'], salary: '$120,000 - $170,000', publication_date: new Date().toISOString() },
+    { id: 'fb12', company_name: 'Cloudflare', title: `Edge Computing Developer`, candidate_required_location: 'Remote', url: 'https://www.cloudflare.com/careers', tags: ['Workers', 'Rust', 'Security'], salary: '$140,000 - $205,000', publication_date: new Date().toISOString() }
   ];
+  return baseJobs;
 }
 
 const claimMilestone = async (req, res) => {

@@ -41,7 +41,7 @@ export const roadmapAPI = {
 export const githubAPI = {
   analyze: (username) => api.get(`/github/analyze/${username}`),
   getHeatmap: (username, year) => api.get(`/github/heatmap/${username}${year ? `?year=${year}` : ''}`),
-  reviewRepo: (username, repoName) => api.post('/github/review', { username, repoName }),
+  reviewRepo: (data) => api.post('/github/review', data),
 };
 
 export const jobsAPI = {
