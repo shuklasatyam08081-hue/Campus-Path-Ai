@@ -161,8 +161,8 @@ export default function ThreeSkillTree({ roadmap, activeWeek, onSelectWeek }) {
           >
             <div className="flex justify-between items-start mb-4">
                <div>
-                 <p className="text-[10px] font-black text-primary uppercase tracking-tighter">Week {selectedNode.week}</p>
-                 <h3 className="text-sm font-bold text-foreground leading-tight">{selectedNode.title}</h3>
+                 <p className="text-[10px] font-black text-primary uppercase tracking-tighter">Week {selectedNode.weekNumber}</p>
+                 <h3 className="text-sm font-bold text-foreground leading-tight">{selectedNode.topic}</h3>
                </div>
                <button onClick={() => setSelectedNode(null)} className="p-1 hover:bg-muted rounded-md transition-colors font-bold text-xs">✕</button>
             </div>
