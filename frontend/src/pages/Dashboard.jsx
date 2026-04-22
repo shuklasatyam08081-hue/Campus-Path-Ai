@@ -73,7 +73,7 @@ export default function Dashboard() {
   const [roadmaps, setRoadmaps] = useState([]);
   const [generating, setGenerating] = useState(false);
   const [syncing, setSyncing] = useState(false);
-  const [missionIdx] = useState(() => Math.floor(Math.random() * MISSIONS.length));
+  const [missionIdx] = useState(() => Math.floor(Math.random() * INSIGHTS.length));
   const [expandedWeek, setExpandedWeek] = useState(null);
 
   useEffect(() => {
