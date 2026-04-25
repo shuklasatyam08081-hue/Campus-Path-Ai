@@ -29,31 +29,48 @@ app.use('/api/roadmap', require('./routes/roadmap'));
 app.use('/api/github', require('./routes/github'));
 app.use('/api/ai', require('./routes/ai'));
 app.use('/api/jobs', require('./routes/jobs'));
+app.use('/api/rooms', require('./routes/room'));
 
 // Basic Socket.io connection logic for study rooms
-const rooms = new Map(); // Store active room users
+const rooms = {}; // { roomId: { socketId: userData } }
 
 io.on('connection', (socket) => {
   console.log('⚡ User connected:', socket.id);
-  
-  // Send current room counts when client requests
+
   socket.on('get-room-counts', () => {
     const counts = {};
-    rooms.forEach((users, roomId) => { counts[roomId] = users.size; });
+    Object.keys(rooms).forEach(id => { counts[id] = Object.keys(rooms[id]).length; });
     socket.emit('room-counts', counts);
   });
 
   socket.on('join-room', ({ roomId, user }) => {
     socket.join(roomId);
-    if (!rooms.has(roomId)) rooms.set(roomId, new Set());
-    rooms.get(roomId).add({ socketId: socket.id, ...user });
-    
-    // Notify all clients with updated counts
+    if (!rooms[roomId]) rooms[roomId] = {};
+    rooms[roomId][socket.id] = { socketId: socket.id, ...user };
+
+    // Broadcast updated counts & user list
     const counts = {};
-    rooms.forEach((users, id) => { counts[id] = users.size; });
+    Object.keys(rooms).forEach(id => { counts[id] = Object.keys(rooms[id]).length; });
     io.emit('room-counts', counts);
-    io.to(roomId).emit('user-joined', { socketId: socket.id, ...user, count: rooms.get(roomId).size });
+
+    const roomUsers = Object.values(rooms[roomId]);
+    io.to(roomId).emit('user-joined', { socketId: socket.id, ...user, roomUsers });
     console.log(`👤 ${user.name} joined room: ${roomId}`);
+  });
+
+  socket.on('leave-room', ({ roomId, user }) => {
+    socket.leave(roomId);
+    if (rooms[roomId] && rooms[roomId][socket.id]) {
+      const userData = rooms[roomId][socket.id];
+      delete rooms[roomId][socket.id];
+
+      const counts = {};
+      Object.keys(rooms).forEach(id => { counts[id] = Object.keys(rooms[id]).length; });
+      io.emit('room-counts', counts);
+
+      const roomUsers = Object.values(rooms[roomId] || {});
+      io.to(roomId).emit('user-left', { name: userData.name, roomUsers });
+    }
   });
 
   socket.on('send-message', ({ roomId, message, user }) => {
@@ -61,15 +78,17 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    rooms.forEach((users, roomId) => {
-      const user = Array.from(users).find(u => u.socketId === socket.id);
-      if (user) {
-        users.delete(user);
-        // Broadcast updated counts
+    Object.keys(rooms).forEach(roomId => {
+      if (rooms[roomId][socket.id]) {
+        const userData = rooms[roomId][socket.id];
+        delete rooms[roomId][socket.id];
+
         const counts = {};
-        rooms.forEach((u, id) => { counts[id] = u.size; });
+        Object.keys(rooms).forEach(id => { counts[id] = Object.keys(rooms[id]).length; });
         io.emit('room-counts', counts);
-        io.to(roomId).emit('user-left', { name: user.name, count: users.size });
+
+        const roomUsers = Object.values(rooms[roomId]);
+        io.to(roomId).emit('user-left', { name: userData.name, roomUsers });
       }
     });
     console.log('🔌 User disconnected');

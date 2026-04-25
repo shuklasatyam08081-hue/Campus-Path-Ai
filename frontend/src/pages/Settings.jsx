@@ -1,8 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { authAPI } from '../api/client';
-import { User, Shield, Bell, Trash, Save, Eye, EyeOff, TriangleAlert, Search, Check, Plus, LogOut, Code, Briefcase, Clock, Github } from 'lucide-react';
+import { 
+  User, Shield, Bell, Trash, Save, Eye, EyeOff, 
+  AlertTriangle, Search, Check, Plus, LogOut, 
+  Code, Briefcase, Clock, Github, ChevronRight,
+  Target, Mail, Key, Zap, Activity, Award
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ROADMAP_OPTIONS = {
   roles: [
@@ -27,29 +33,32 @@ const ROADMAP_OPTIONS = {
   ]
 };
 
-const TABS = [
-  { id: 'profile', label: 'Profile', icon: User, desc: 'Personal info & career' },
-  { id: 'security', label: 'Security', icon: Shield, desc: 'Passwords & auth' },
-  { id: 'notifications', label: 'Notifications', icon: Bell, desc: 'Email alerts' },
-];
-
 export default function SettingsPage() {
-  const { user, updateUser, logout } = useAuth();
+  const { user, updateUser } = useAuth();
   const toast = useToast();
-  const [tab, setTab] = useState('profile');
   const [saving, setSaving] = useState(false);
   const [showDanger, setShowDanger] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showCustomInput, setShowCustomInput] = useState(false);
-
+  
   const [profile, setProfile] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    githubUsername: user?.githubUsername || '',
-    targetRole: user?.targetRole || 'Fullstack',
-    weeklyHours: user?.weeklyHours || 10,
+    name: '',
+    email: '',
+    githubUsername: '',
+    targetRole: 'Fullstack',
+    weeklyHours: 10,
   });
+
+  useEffect(() => {
+    if (user) {
+      setProfile({
+        name: user.name || '',
+        email: user.email || '',
+        githubUsername: user.githubUsername || '',
+        targetRole: user.targetRole || 'Fullstack',
+        weeklyHours: user.weeklyHours || 10,
+      });
+    }
+  }, [user]);
 
   const [passwords, setPasswords] = useState({ current: '', newPw: '', confirm: '' });
   const [showPw, setShowPw] = useState({ current: false, new: false, confirm: false });
@@ -60,436 +69,258 @@ export default function SettingsPage() {
     try {
       const { data } = await authAPI.updateProfile(profile);
       updateUser(data.user);
-      toast.success('✅ Profile updated successfully!');
+      toast.success('System parameters synchronized.');
     } catch {
-      toast.error('Failed to update profile. Please try again.');
+      toast.error('Failed to sync profile.');
     } finally {
       setSaving(false);
     }
   };
 
   const savePassword = () => {
-    if (!passwords.current) { toast.error('Enter your current password'); return; }
-    if (passwords.newPw.length < 6) { toast.error('New password must be at least 6 characters'); return; }
-    if (passwords.newPw !== passwords.confirm) { toast.error('Passwords do not match'); return; }
-    toast.success('Password updated successfully!');
-    setPasswords({ current: '', newPw: '', confirm: '' });
+    if (!passwords.current) return toast.error('Access key required.');
+    toast.success('Security layers updated.');
   };
 
-  const saveNotifs = () => {
-    toast.success('Notification preferences saved!');
-  };
-
-  const deleteAccount = () => {
-    if (confirmDelete !== 'DELETE') { toast.error('Type DELETE to confirm'); return; }
-    toast.error('Account deletion requested. Check your email for confirmation.');
-    setShowDanger(false);
-  };
+  if (!user) return (
+    <div className="flex items-center justify-center min-h-[50vh]">
+      <Activity size={24} className="animate-spin text-primary opacity-50" />
+    </div>
+  );
 
   return (
-    <div className="max-w-5xl mx-auto pb-16 px-4 sm:px-6 animation-fade-in">
-      <div className="mb-8 md:mb-12 relative z-10">
-        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-3">
-          <span className="text-gradient">Account Settings</span>
-        </h1>
-        <p className="text-slate-400 text-lg">Manage your identity, security, and learning preferences.</p>
+    <div className="animate-in fade-in duration-500 space-y-6 pb-10">
+      {/* Header Dashboard Style */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground mb-1">Account & Preferences</h1>
+          <p className="text-sm text-muted-foreground font-medium">Configure your technical identity and system environment.</p>
+        </div>
+        <div className="flex gap-2">
+           <div className="bg-card border border-border px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm">
+              <Shield size={14} className="text-primary" />
+              <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">Secure Sync</span>
+           </div>
+        </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-8">
-        
-        {/* Sidebar Navigation */}
-        <aside className="md:w-72 flex-shrink-0">
-          <div className="sticky top-24 flex flex-col gap-2 glass-panel p-3 shadow-xl">
-            {TABS.map(({ id, label, icon: TabIcon, desc }) => (
-              <button 
-                key={id} 
-                onClick={() => setTab(id)} 
-                className={`
-                  flex items-center gap-4 p-4 rounded-xl text-left transition-all duration-300 relative overflow-hidden group
-                  ${tab === id 
-                    ? 'bg-primary/10 border border-primary/30 text-primary shadow-[0_0_15px_rgba(47,129,247,0.15)]' 
-                    : 'bg-transparent border border-transparent text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'}
-                `}
-              >
-                {tab === id && <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary shadow-[0_0_10px_rgba(47,129,247,0.5)]"></div>}
-                <div className={`p-2 rounded-lg transition-colors ${tab === id ? 'bg-primary/20 text-primary' : 'bg-slate-800 group-hover:bg-slate-700 text-slate-400'}`}>
-                  <TabIcon size={20} strokeWidth={2.5} />
+      {/* Stats Summary Style */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+         <div className="bg-card border border-border p-4 rounded-xl shadow-sm">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Identity Status</p>
+            <div className="flex items-center justify-between">
+              <p className="text-xl font-bold text-foreground">Active</p>
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+                <Check size={16} />
+              </div>
+            </div>
+         </div>
+         <div className="bg-card border border-border p-4 rounded-xl shadow-sm">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Current Path</p>
+            <div className="flex items-center justify-between">
+              <p className="text-xl font-bold text-foreground truncate max-w-[100px]">{profile.targetRole.split(' ')[0]}</p>
+              <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                <Target size={16} />
+              </div>
+            </div>
+         </div>
+         <div className="bg-card border border-border p-4 rounded-xl shadow-sm">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Weekly Commitment</p>
+            <div className="flex items-center justify-between">
+              <p className="text-xl font-bold text-foreground">{profile.weeklyHours}h/w</p>
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
+                <Clock size={16} />
+              </div>
+            </div>
+         </div>
+         <div className="bg-card border border-border p-4 rounded-xl shadow-sm">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Technical XP</p>
+            <div className="flex items-center justify-between">
+              <p className="text-xl font-bold text-foreground">{user?.xp || 0}</p>
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
+                <Award size={16} />
+              </div>
+            </div>
+         </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Profile Configuration Grid Area */}
+        <div className="lg:col-span-8 space-y-6">
+          <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+            <div className="p-4 border-b border-border bg-muted/20">
+               <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                 <User size={16} className="text-primary" /> Profile Parameters
+               </h3>
+            </div>
+            <div className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Legal Name</label>
+                  <input value={profile.name} onChange={e => setProfile({...profile, name: e.target.value})} className="w-full bg-muted/30 border border-border rounded-lg px-4 py-2.5 text-sm font-semibold text-foreground focus:outline-none focus:border-primary transition-all"/>
                 </div>
-                <div>
-                  <div className={`font-semibold text-sm ${tab === id ? 'text-primary' : ''}`}>{label}</div>
-                  <div className="text-xs text-slate-500 mt-0.5">{desc}</div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Email Connection</label>
+                  <input value={profile.email} onChange={e => setProfile({...profile, email: e.target.value})} className="w-full bg-muted/30 border border-border rounded-lg px-4 py-2.5 text-sm font-semibold text-foreground focus:outline-none focus:border-primary transition-all"/>
                 </div>
-              </button>
-            ))}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">GitHub Sync Handle</label>
+                  <div className="relative">
+                    <Github size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <input value={profile.githubUsername} onChange={e => setProfile({...profile, githubUsername: e.target.value})} className="w-full bg-muted/30 border border-border rounded-lg pl-11 pr-4 py-2.5 text-sm font-semibold text-foreground focus:outline-none focus:border-primary transition-all"/>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Weekly Commitment (Hours)</label>
+                  <div className="relative">
+                    <Clock size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <input type="number" value={profile.weeklyHours} onChange={e => setProfile({...profile, weeklyHours: Number(e.target.value)})} className="w-full bg-muted/30 border border-border rounded-lg pl-11 pr-4 py-2.5 text-sm font-semibold text-foreground focus:outline-none focus:border-primary transition-all"/>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-border">
+                 <div className="flex items-center gap-2 mb-4">
+                    <Target size={16} className="text-primary" />
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Specialization Catalog</label>
+                 </div>
+                 
+                 <div className="max-h-[350px] overflow-y-auto pr-2 no-scrollbar space-y-6">
+                    <div>
+                       <p className="text-[9px] font-black text-primary uppercase tracking-widest mb-3 flex items-center gap-2">
+                         <span className="w-3 h-[1px] bg-primary/30"></span> Career Roles
+                       </p>
+                       <div className="flex flex-wrap gap-2">
+                          {ROADMAP_OPTIONS.roles.map(role => (
+                            <button key={role} onClick={() => setProfile({...profile, targetRole: role})} className={`px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all ${profile.targetRole === role ? 'bg-primary border-primary text-white shadow-md' : 'bg-muted/50 border-border text-muted-foreground hover:border-muted-foreground'}`}>
+                               {role}
+                            </button>
+                          ))}
+                       </div>
+                    </div>
+
+                    <div>
+                       <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                         <span className="w-3 h-[1px] bg-emerald-500/30"></span> Skills & Technologies
+                       </p>
+                       <div className="flex flex-wrap gap-2">
+                          {ROADMAP_OPTIONS.skills.map(skill => (
+                            <button key={skill} onClick={() => setProfile({...profile, targetRole: skill})} className={`px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all ${profile.targetRole === skill ? 'bg-emerald-500 border-emerald-500 text-white shadow-md' : 'bg-muted/50 border-border text-muted-foreground hover:border-muted-foreground'}`}>
+                               {skill}
+                            </button>
+                          ))}
+                       </div>
+                    </div>
+                 </div>
+              </div>
+
+              <div className="flex justify-end pt-4 border-t border-border mt-6">
+                <button onClick={saveProfile} disabled={saving} className="btn-primary py-2 px-8 flex items-center gap-2">
+                  <Save size={16} /> {saving ? 'Syncing...' : 'Update Profile'}
+                </button>
+              </div>
+            </div>
           </div>
-        </aside>
 
-        {/* Main Content Area */}
-        <main className="flex-1">
-          <div className="glass-panel p-6 md:p-10 relative overflow-hidden min-h-[500px]">
-            
-            {/* Subtle glow effect behind content */}
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
-
-            {/* Profile Tab */}
-            {tab === 'profile' && (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col gap-10">
-                <div className="flex items-center justify-between border-b border-border pb-6">
-                  <div>
-                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                      <User className="text-primary" size={24} /> Profile Information
-                    </h3>
-                    <p className="text-sm text-slate-400 mt-1">Update your personal details and path.</p>
-                  </div>
+          <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden border-rose-500/20">
+             <div className="p-4 border-b border-border bg-rose-500/5">
+                <h3 className="text-sm font-bold text-rose-500 flex items-center gap-2">
+                  <AlertTriangle size={16} /> Critical Zone
+                </h3>
+             </div>
+             <div className="p-6 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div className="max-w-md">
+                   <p className="text-sm font-semibold text-foreground mb-1">Permanent Deletion</p>
+                   <p className="text-xs text-muted-foreground leading-relaxed">Once you delete your account, all your technical progress and roadmaps will be purged.</p>
                 </div>
+                <button onClick={() => setShowDanger(!showDanger)} className="btn-secondary border-rose-500/30 text-rose-500 hover:bg-rose-500 hover:text-white px-8 py-2">
+                   Purge Identity
+                </button>
+             </div>
+          </div>
+        </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="group">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2 drop-shadow-sm">
-                      <User size={14} className="text-primary" /> Full Name
-                    </label>
-                    <input 
-                      className="w-full bg-background border border-border rounded-lg px-4 py-3 text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300 shadow-inner group-hover:border-slate-700" 
-                      value={profile.name} 
-                      onChange={e => setProfile(p => ({ ...p, name: e.target.value }))} 
-                      placeholder="Jane Doe"
-                    />
-                  </div>
-                  <div className="group">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2 drop-shadow-sm">
-                      <Code size={14} className="text-primary" /> Email Address
-                    </label>
-                    <input 
-                      className="w-full bg-background border border-border rounded-lg px-4 py-3 text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300 shadow-inner group-hover:border-slate-700" 
-                      type="email" 
-                      value={profile.email} 
-                      onChange={e => setProfile(p => ({ ...p, email: e.target.value }))} 
-                      placeholder="jane@example.com"
-                    />
-                  </div>
-                  <div className="group">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2 drop-shadow-sm">
-                      <Github size={14} className="text-slate-300" /> GitHub Username
-                    </label>
+        {/* Security & Alerts Sidebar Area */}
+        <div className="lg:col-span-4 space-y-6">
+          <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+            <div className="p-4 border-b border-border bg-muted/20">
+               <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                 <Shield size={16} className="text-primary" /> Security Keys
+               </h3>
+            </div>
+            <div className="p-5 space-y-5">
+               {['current', 'newPw', 'confirm'].map((key) => (
+                  <div key={key} className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">{key.replace('Pw', '')} Key</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">github.com/</span>
-                      <input 
-                        className="w-full bg-background border border-border rounded-lg pl-[105px] pr-4 py-3 text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300 shadow-inner group-hover:border-slate-700 font-mono text-sm" 
-                        value={profile.githubUsername} 
-                        onChange={e => setProfile(p => ({ ...p, githubUsername: e.target.value }))} 
-                        placeholder="username" 
-                      />
+                      <Key size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                      <input type={showPw[key] ? 'text' : 'password'} value={passwords[key]} onChange={e => setPasswords({...passwords, [key]: e.target.value})} placeholder="••••••••" className="w-full bg-muted/30 border border-border rounded-lg pl-11 pr-12 py-2.5 text-sm font-bold tracking-widest focus:outline-none focus:border-primary"/>
+                      <button onClick={() => setShowPw({...showPw, [key]: !showPw[key]})} className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground hover:text-foreground">
+                        {showPw[key] ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
                     </div>
                   </div>
-                  <div className="group">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2 drop-shadow-sm">
-                      <Clock size={14} className="text-amber-500" /> Weekly Goal (Hours)
-                    </label>
-                    <input 
-                      className="w-full bg-background border border-border rounded-lg px-4 py-3 text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-400 transition-all duration-300 shadow-inner group-hover:border-slate-700" 
-                      type="number" min={1} max={40} 
-                      value={profile.weeklyHours} 
-                      onChange={e => setProfile(p => ({ ...p, weeklyHours: Number(e.target.value) }))} 
-                    />
-                  </div>
-                </div>
-
-                <div className="pt-8 border-t border-border">
-                  <div className="flex items-center gap-2 mb-6">
-                    <div className="p-2 bg-emerald-500/10 rounded-lg">
-                      <Briefcase size={20} className="text-emerald-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-bold text-white">Roadmap & Career Path</h4>
-                      <p className="text-sm text-slate-400">Select your target role to personalize your journey</p>
-                    </div>
-                  </div>
-                  
-                  <div className="relative mb-6 group">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors">
-                      <Search size={18} />
-                    </div>
-                    <input 
-                      className="w-full bg-background border border-border rounded-xl pl-12 pr-4 py-4 text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300 shadow-inner text-lg placeholder-slate-600" 
-                      type="text" 
-                      placeholder="Search for roles, languages, tools..." 
-                      value={searchTerm} 
-                      onChange={e => setSearchTerm(e.target.value)} 
-                    />
-                  </div>
-
-                  <div className="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar bg-background p-4 rounded-xl border border-border">
-                    <div className="mb-8">
-                      <p className="text-xs font-bold text-primary uppercase tracking-widest mb-4 flex items-center gap-2"><span className="w-4 h-[2px] bg-primary/50 inline-block"></span> Career Roles</p>
-                      <div className="flex flex-wrap gap-2.5">
-                        {ROADMAP_OPTIONS.roles.filter(r => r.toLowerCase().includes(searchTerm.toLowerCase())).map(role => {
-                          const isSelected = profile.targetRole === role;
-                          return (
-                            <button key={role} 
-                              onClick={() => { setProfile(p => ({ ...p, targetRole: role })); setShowCustomInput(false); }}
-                              className={`
-                                px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2
-                                ${isSelected 
-                                  ? 'bg-primary text-primary-foreground shadow-[0_4px_12px_rgba(47,129,247,0.3)] scale-105 border-0' 
-                                  : 'bg-muted border border-border text-muted-foreground hover:bg-accent hover:text-foreground hover:border-accent-foreground'}
-                              `}>
-                              {role}
-                              {isSelected && <Check size={14} className="animate-in zoom-in duration-300" />}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <div>
-                      <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-4 flex items-center gap-2"><span className="w-4 h-[2px] bg-emerald-400/50 inline-block"></span> Skills & Technologies</p>
-                      <div className="flex flex-wrap gap-2.5">
-                        {ROADMAP_OPTIONS.skills.filter(s => s.toLowerCase().includes(searchTerm.toLowerCase())).map(skill => {
-                          const isSelected = profile.targetRole === skill;
-                          return (
-                            <button key={skill} 
-                              onClick={() => { setProfile(p => ({ ...p, targetRole: skill })); setShowCustomInput(false); }}
-                              className={`
-                                px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2
-                                ${isSelected 
-                                  ? 'bg-emerald-600 text-white shadow-[0_4px_12px_rgba(16,185,129,0.3)] scale-105 border-0' 
-                                  : 'bg-muted border border-border text-muted-foreground hover:bg-accent hover:text-foreground hover:border-accent-foreground'}
-                              `}>
-                              {skill}
-                              {isSelected && <Check size={14} className="animate-in zoom-in duration-300" />}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-6">
-                    <button 
-                      className={`
-                        w-full py-4 rounded-xl flex items-center justify-center gap-2 text-sm font-bold transition-all duration-300 border-2 border-dashed
-                        ${showCustomInput ? 'border-border text-muted-foreground bg-muted/50' : 'border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/60'}
-                      `}
-                      onClick={() => setShowCustomInput(!showCustomInput)}>
-                      <Plus size={16} className={`transition-transform duration-300 ${showCustomInput ? 'rotate-45' : ''}`} /> 
-                      {showCustomInput ? 'Cancel Custom Input' : "Can't find your role? Enter a custom one"}
-                    </button>
-                    {showCustomInput && (
-                      <div className="mt-4 animate-in fade-in slide-in-from-top-4 duration-300">
-                        <input 
-                          className="w-full bg-background border-2 border-primary/50 rounded-xl px-5 py-4 text-foreground focus:outline-none focus:ring-4 focus:ring-primary/20 text-lg shadow-inner placeholder-muted-foreground" 
-                          value={profile.targetRole} 
-                          onChange={e => setProfile(p => ({ ...p, targetRole: e.target.value }))}
-                          placeholder="e.g. Director of Engineering" autoFocus 
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex justify-end pt-4">
-                  <button 
-                    className="btn-primary flex items-center gap-2 scale-105 py-3 px-8 rounded-lg" 
-                    onClick={saveProfile} 
-                    disabled={saving}
-                  >
-                    <Save size={18} className={saving ? 'animate-pulse' : ''} /> 
-                    {saving ? 'Saving Changes...' : 'Save Profile Details'}
-                  </button>
-                </div>
-
-                {/* Danger Zone */}
-                <div className="mt-8 relative overflow-hidden rounded-xl border border-destructive/20 bg-destructive/5 p-8 transition-colors duration-300 hover:border-destructive/40">
-                  <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                    <TriangleAlert size={100} className="text-destructive" />
-                  </div>
-                  <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-destructive/20 rounded-lg">
-                          <TriangleAlert size={20} className="text-destructive" />
-                        </div>
-                        <h4 className="text-xl font-bold text-destructive">Danger Zone</h4>
-                      </div>
-                      <p className="text-muted-foreground text-sm max-w-md">Once you delete your account, there is no going back. Please be certain. This will permanently delete your progress, stats, and profile.</p>
-                    </div>
-                    <button 
-                      className={`font-semibold py-3 px-6 rounded-lg flex items-center gap-2 transition-all duration-300 flex-shrink-0 ${showDanger ? 'bg-muted text-muted-foreground border border-border' : 'bg-destructive/10 text-destructive border border-destructive/30 hover:bg-destructive hover:text-white hover:shadow-[0_0_15px_rgba(248,81,73,0.5)]'}`}
-                      onClick={() => setShowDanger(!showDanger)}>
-                      <Trash size={16} /> {showDanger ? 'Cancel Deletion' : 'Delete Account'}
-                    </button>
-                  </div>
-                  
-                  {showDanger && (
-                    <div className="mt-8 animate-in fade-in slide-in-from-top-4 duration-300 bg-destructive/10 p-6 rounded-lg border border-destructive/20 shadow-inner">
-                      <p className="text-destructive text-sm mb-4 font-medium flex items-center gap-2">
-                        <TriangleAlert size={14} /> Type <strong className="text-foreground bg-destructive/20 px-2 py-0.5 rounded uppercase tracking-widest">DELETE</strong> to confirm permanent deletion.
-                      </p>
-                      <div className="flex flex-col sm:flex-row gap-4">
-                        <input 
-                          className="flex-1 bg-background border-2 border-destructive/40 rounded-lg px-4 py-3 text-foreground placeholder-destructive/50 focus:outline-none focus:ring-4 focus:ring-destructive/20 focus:border-destructive/80 transition-all font-mono" 
-                          value={confirmDelete} 
-                          onChange={e => setConfirmDelete(e.target.value)} 
-                          placeholder="Type DELETE" 
-                        />
-                        <button 
-                          className="bg-destructive hover:bg-destructive/90 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_15px_rgba(248,81,73,0.4)]"
-                          onClick={deleteAccount}
-                          disabled={confirmDelete !== 'DELETE'}
-                        >
-                          Confirm & Delete
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Security Tab */}
-            {tab === 'security' && (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col gap-8 w-full max-w-2xl mx-auto py-4">
-                <div className="text-center mb-6">
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-4 border border-primary/20 shadow-[0_0_30px_rgba(47,129,247,0.15)]">
-                    <Shield size={32} />
-                  </div>
-                  <h3 className="text-2xl font-bold text-white">Password & Security</h3>
-                  <p className="text-slate-400 mt-2">Ensure your account is using a long, random password to stay secure.</p>
-                </div>
-
-                <div className="space-y-6">
-                  {[
-                    { key: 'current', label: 'Current Password', desc: 'Enter your existing password' },
-                    { key: 'newPw', label: 'New Password', desc: 'Must be at least 8 characters long' },
-                    { key: 'confirm', label: 'Confirm New Password', desc: 'Repeat your new password' },
-                  ].map(({ key, label, desc }) => (
-                    <div key={key} className="group">
-                      <div className="flex justify-between items-end mb-2">
-                        <label className="text-sm font-bold text-slate-300">{label}</label>
-                        <span className="text-xs text-slate-500 hidden sm:inline-block">{desc}</span>
-                      </div>
-                      <div className="relative">
-                        <input 
-                          className="w-full bg-background border border-border rounded-lg pl-4 pr-12 py-3.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all shadow-inner group-hover:border-border text-lg tracking-wider" 
-                          type={showPw[key] ? 'text' : 'password'}
-                          value={passwords[key]} 
-                          onChange={e => setPasswords(p => ({ ...p, [key]: e.target.value }))}
-                          placeholder="••••••••" 
-                        />
-                        <button 
-                          className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg text-slate-500 hover:bg-muted hover:text-slate-300 transition-colors focus:outline-none"
-                          onClick={() => setShowPw(p => ({ ...p, [key]: !p[key] }))}>
-                          {showPw[key] ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-8 pt-8 border-t border-border">
-                  <div className="text-xs text-slate-500 flex items-center gap-2">
-                    <Shield size={14} className="text-emerald-500" /> Secure connection established
-                  </div>
-                  <button 
-                    className="btn-primary w-full sm:w-auto h-12 px-8 flex items-center justify-center gap-2" 
-                    onClick={savePassword}>
-                    <Shield size={18} /> Update Password
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Notifications Tab */}
-            {tab === 'notifications' && (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col gap-6 w-full max-w-3xl mx-auto py-2">
-                <div className="flex items-center gap-4 mb-4 border-b border-border pb-6">
-                  <div className="p-3 bg-primary/10 rounded-xl border border-primary/20">
-                    <Bell size={24} className="text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-white">Email & Push Notifications</h3>
-                    <p className="text-sm text-slate-400 mt-1">Choose what updates you want to receive.</p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  {[
-                    { key: 'weeklyDigest', label: 'Weekly Progress Digest', desc: 'Get a comprehensive summary of your learning progress every Monday morning.', icon: Clock, color: 'text-primary', bg: 'bg-primary/10' },
-                    { key: 'achievements', label: 'Achievement Alerts', desc: 'Be instantly notified when you unlock new badges, levels, or learning milestones.', icon: Shield, color: 'text-amber-400', bg: 'bg-amber-500/10' },
-                    { key: 'jobMatches', label: 'Job Match Updates', desc: 'Get notified when exciting new opportunities match your roadmap and skill profile.', icon: Briefcase, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-                  ].map(({ key, label, desc, icon: Icon, color, bg }) => (
-                    <div key={key} className={`
-                      group flex gap-4 p-5 rounded-2xl border transition-all duration-300 cursor-pointer
-                      ${notifs[key] ? 'bg-muted border-border shadow-md' : 'bg-muted/30 border-border hover:bg-muted/50'}
-                    `} onClick={() => setNotifs(p => ({ ...p, [key]: !p[key] }))}>
-                      
-                      <div className={`p-3 rounded-xl flex-shrink-0 h-fit ${bg}`}>
-                        <Icon size={20} className={color} />
-                      </div>
-                      
-                      <div className="flex flex-col md:flex-row md:items-center justify-between flex-1 gap-4">
-                        <div>
-                          <div className={`font-bold mb-1 transition-colors ${notifs[key] ? 'text-white' : 'text-slate-300'}`}>{label}</div>
-                          <div className="text-sm text-slate-500 leading-relaxed pr-4">{desc}</div>
-                        </div>
-                        
-                        {/* Custom Animated Toggle */}
-                        <div className={`
-                          relative flex-shrink-0 w-14 h-8 rounded-full p-1 transition-colors duration-300 ease-in-out
-                          ${notifs[key] ? 'bg-primary shadow-[0_0_10px_rgba(47,129,247,0.5)]' : 'bg-slate-700'}
-                        `}>
-                          <div className={`
-                            w-6 h-6 rounded-full bg-white shadow-md transform transition-transform duration-300 ease-spring
-                            ${notifs[key] ? 'translate-x-6' : 'translate-x-0'}
-                          `} />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex justify-end mt-8 pt-6 border-t border-border">
-                  <button 
-                    className="btn-secondary h-12 px-8 flex items-center justify-center gap-2" 
-                    onClick={saveNotifs}>
-                    <Save size={18} /> Update Preferences
-                  </button>
-                </div>
-              </div>
-            )}
-            
+                ))}
+                <button onClick={savePassword} className="w-full btn-primary py-2.5 font-bold mt-2">
+                   Update Access
+                </button>
+            </div>
           </div>
-        </main>
+
+          <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+            <div className="p-4 border-b border-border bg-muted/20">
+               <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                 <Bell size={16} className="text-amber-500" /> Notifications
+               </h3>
+            </div>
+            <div className="p-2 space-y-1">
+              {[
+                { key: 'weeklyDigest', label: 'Velocity Summary', icon: Zap },
+                { key: 'achievements', label: 'Milestone Alerts', icon: Award },
+                { key: 'jobMatches', label: 'Carrier Matches', icon: Target }
+              ].map(({ key, label, icon: Icon }) => (
+                <div key={key} onClick={() => setNotifs({...notifs, [key]: !notifs[key]})} className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all ${notifs[key] ? 'bg-primary/5 border border-primary/20 shadow-sm' : 'hover:bg-muted/50'}`}>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-md flex items-center justify-center border ${notifs[key] ? 'bg-primary/10 border-primary/20 text-primary' : 'bg-muted border-border text-muted-foreground'}`}>
+                      <Icon size={14} />
+                    </div>
+                    <span className="text-xs font-bold text-foreground">{label}</span>
+                  </div>
+                  <div className={`w-8 h-4 rounded-full p-0.5 transition-colors ${notifs[key] ? 'bg-primary' : 'bg-muted-foreground/30'}`}>
+                     <div className={`w-3 h-3 bg-white rounded-full transition-transform ${notifs[key] ? 'translate-x-4' : 'translate-x-0'}`} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-{/* Add global styles for animations right in the file to make it completely self-contained over the default tailwind config */}
-<style dangerouslySetInnerHTML={{__html: `
-  @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  @keyframes slide-in-from-bottom {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes slide-in-from-top {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes zoom-in {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-  }
-  .animate-in {
-    animation-duration: 0.5s;
-    animation-fill-mode: both;
-    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .fade-in { animation-name: fade-in; }
-  .slide-in-from-bottom-4 { animation-name: slide-in-from-bottom; }
-  .slide-in-from-top-4 { animation-name: slide-in-from-top; animation-duration: 0.3s; }
-  .zoom-in { animation-name: zoom-in; }
-  .ease-spring { transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); }
-`}} />
+
+      {/* Danger Confirmation Modal */}
+      <AnimatePresence>
+        {showDanger && (
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
+             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowDanger(false)} className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+             <motion.div initial={{ scale: 0.95, opacity: 0, y: 10 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 10 }} className="relative w-full max-w-md bg-card border border-border rounded-xl p-8 shadow-2xl z-10 mx-auto my-auto text-center">
+                <div className="w-16 h-16 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto mb-6 text-rose-500 shadow-sm">
+                   <AlertTriangle size={32} />
+                </div>
+                <h2 className="text-xl font-bold text-foreground mb-2">Final Confirmation</h2>
+                <p className="text-xs text-muted-foreground mb-8">This action is irreversible. Type <span className="font-black text-rose-500">DELETE</span> to confirm purge.</p>
+                <input 
+                  value={confirmDelete} 
+                  onChange={e => setConfirmDelete(e.target.value)} 
+                  placeholder="Type DELETE" 
+                  className="w-full bg-muted/30 border border-border rounded-lg px-4 py-3 text-center text-sm font-black tracking-widest focus:outline-none focus:border-rose-500 transition-all mb-6"
+                />
+                <div className="flex gap-3">
+                   <button onClick={() => setShowDanger(false)} className="flex-1 btn-secondary py-2.5 font-bold">Cancel</button>
+                   <button disabled={confirmDelete !== 'DELETE'} className="flex-1 bg-rose-500 hover:bg-rose-600 text-white py-2.5 rounded-lg font-bold disabled:opacity-30 shadow-lg shadow-rose-500/20">Purge Data</button>
+                </div>
+             </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

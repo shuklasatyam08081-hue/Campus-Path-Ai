@@ -57,4 +57,12 @@ export const aiAPI = {
   interview: (data) => api.post('/ai/interview', data),
 };
 
+export const roomAPI = {
+  getAll: () => api.get('/rooms'),
+  create: (data) => api.post('/rooms', data),
+  update: (id, data) => api.put(`/rooms/${id}`, data),
+  delete: (id) => api.delete(`/rooms/${id}`),
+  verifyPassword: (id, password) => api.post(`/rooms/${id}/verify`, { password }),
+};
+
 export default api;
