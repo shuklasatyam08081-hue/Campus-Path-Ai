@@ -15,7 +15,23 @@ export default function GitHubDNA() {
   const [repoUrl, setRepoUrl] = useState('');
   const [reviewLoading, setReviewLoading] = useState(false);
   const [scorecard, setScorecard] = useState(null);
+  const [syncing, setSyncing] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const toast = useToast();
+
+  const handleSync = async () => {
+    if (!username.trim()) { toast.error('Please enter a GitHub username'); return; }
+    setSyncing(true);
+    try {
+      await githubAPI.analyze(username);
+      setRefreshTrigger(prev => prev + 1);
+      toast.success('GitHub DNA synchronized successfully!');
+    } catch (err) {
+      toast.error('Sync failed: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const handleReview = async () => {
     if (!repoUrl.trim()) { toast.error('Please enter a GitHub repository URL'); return; }
@@ -86,8 +102,13 @@ export default function GitHubDNA() {
               placeholder="Enter GitHub Username" 
               className="bg-transparent border-none outline-none text-sm px-4 py-2 w-48 font-mono placeholder:text-muted-foreground opacity-60"
             />
-            <button className="bg-[#238636] hover:bg-[#2ea043] text-white text-sm font-semibold px-6 py-2 rounded-lg transition-colors">
-              Sync DNA
+            <button 
+              onClick={handleSync}
+              disabled={syncing}
+              className="bg-[#238636] hover:bg-[#2ea043] text-white text-sm font-semibold px-6 py-2 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-75"
+            >
+              {syncing ? <RefreshCw size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+              {syncing ? 'Syncing...' : 'Sync DNA'}
             </button>
           </div>
         </div>
@@ -98,7 +119,7 @@ export default function GitHubDNA() {
             <Globe size={16} />
             <span className="text-xs font-semibold tracking-widest uppercase opacity-80">Real-Time Contribution Grid</span>
           </div>
-          <ContributionHeatmap username={username} />
+          <ContributionHeatmap key={`${username}-${refreshTrigger}`} username={username} />
         </div>
 
         {/* AI Repo Reviewer Section */}

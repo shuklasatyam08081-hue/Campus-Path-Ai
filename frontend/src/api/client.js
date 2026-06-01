@@ -1,9 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.PROD 
-    ? 'https://campus-path-ai-backend.onrender.com/api' 
-    : '/api',
+  baseURL: '/api',
   headers: { 'Content-Type': 'application/json' },
 });
 

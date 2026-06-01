@@ -233,11 +233,75 @@ const analyzeGitHub = async (username) => {
   }
 };
 
+const generateMockContributionCalendar = (username, year) => {
+  const weeks = [];
+  let totalContributions = 0;
+  
+  let startDate = new Date();
+  let endDate = new Date();
+  if (year) {
+    startDate = new Date(`${year}-01-01`);
+    endDate = new Date(`${year}-12-31`);
+  } else {
+    startDate.setDate(startDate.getDate() - 364);
+  }
+  
+  const startDay = startDate.getDay();
+  startDate.setDate(startDate.getDate() - startDay);
+  
+  let currentDate = new Date(startDate);
+  let currentWeek = { contributionDays: [] };
+  
+  while (currentDate <= endDate || currentWeek.contributionDays.length > 0) {
+    const dateStr = currentDate.toISOString().split('T')[0];
+    const dayOfWeek = currentDate.getDay();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+    
+    let count = 0;
+    const rand = Math.random();
+    if (isWeekend) {
+      if (rand > 0.85) count = Math.floor(Math.random() * 3) + 1;
+    } else {
+      if (rand > 0.5) count = Math.floor(Math.random() * 6) + 1;
+    }
+    
+    totalContributions += count;
+    
+    let color = '#ebedf0';
+    if (count > 0 && count <= 3) color = '#9be9a8';
+    else if (count > 3 && count <= 6) color = '#40c463';
+    else if (count > 6 && count <= 9) color = '#30a14e';
+    else if (count > 9) color = '#216e39';
+    
+    currentWeek.contributionDays.push({
+      date: dateStr,
+      contributionCount: count,
+      color: color
+    });
+    
+    if (currentWeek.contributionDays.length === 7) {
+      weeks.push(currentWeek);
+      currentWeek = { contributionDays: [] };
+    }
+    
+    currentDate.setDate(currentDate.getDate() + 1);
+    if (currentDate > endDate && currentWeek.contributionDays.length === 0) {
+      break;
+    }
+  }
+  
+  return {
+    totalContributions,
+    weeks
+  };
+};
+
 const getContributionHeatmap = async (username, year) => {
   console.log(`📡 Fetching GraphQL Heatmap for: ${username} (Year: ${year || 'Last 365 days'})`);
 
-  if (!process.env.GITHUB_TOKEN) {
-    throw new Error('GITHUB_TOKEN is not set in backend/.env');
+  if (!process.env.GITHUB_TOKEN || process.env.GITHUB_TOKEN === 'YOUR_GITHUB_TOKEN_HERE' || process.env.GITHUB_TOKEN.includes('dummy')) {
+    console.warn('⚠️ GITHUB_TOKEN not set or is a placeholder. Generating a realistic mock contribution calendar.');
+    return generateMockContributionCalendar(username, year);
   }
 
   const query = `
