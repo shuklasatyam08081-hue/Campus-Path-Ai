@@ -12,7 +12,11 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { roomAPI } from '../api/client';
 
-const socket = io('http://localhost:5000', { autoConnect: true });
+const socket = io(import.meta.env.PROD 
+  ? (import.meta.env.VITE_API_URL || 'https://campus-path-ai.onrender.com')
+  : 'http://localhost:5000', 
+  { autoConnect: true }
+);
 
 const AMBIENCE_SOUNDS = [
   { id: 'lofi', name: 'Lofi Beats', icon: Music, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },

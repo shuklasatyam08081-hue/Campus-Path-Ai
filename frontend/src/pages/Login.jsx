@@ -31,7 +31,10 @@ export default function Login() {
   }, []);
 
   const handleOAuth = (provider) => {
-    window.location.href = `http://localhost:5000/api/auth/${provider}`;
+    const baseURL = import.meta.env.PROD 
+      ? (import.meta.env.VITE_API_URL || 'https://campus-path-ai.onrender.com') 
+      : 'http://localhost:5000';
+    window.location.href = `${baseURL}/api/auth/${provider}`;
   };
 
   const handleSubmit = async (e) => {
